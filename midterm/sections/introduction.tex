@@ -3,10 +3,10 @@ Les algorithmes de tracé de rayon sont omniprésents dans les moteurs de rendu 
 
 Un nouveau paradigme prometteur a récemment été présenté par \citeauthor{seyb24from} dans \citetitle{seyb24from} \cite{seyb24from}. Ils proposent un nouvel algorithme de tracé de rayon pour faire le rendu de surfaces implicites définies par processus de Gauss (GPIS), ouvrant ainsi la voie à un continuum d'actifs pouvant être représentés avec le même algorithme.
 
-Cette recherche vise à déterminer si le rendu des cheveux peut être réalisé efficacement à l'aide de ce nouveau continuum. Ce rapport d'avancement partiel présente les résultats et l'orientation du projet de recherche, ainsi que les progrès réalisés sur la preuve de concept concernant un plugin de forme GPIS pour Mitsuba 3.
+Cette recherche vise à déterminer si le rendu des cheveux peut être réalisé efficacement à l’aide de ce nouveau continuum. Ce rapport d’avancement partiel présente les résultats et l’orientation du projet de recherche, ainsi que les progrès réalisés sur la preuve de concept concernant un plugin de forme GPIS pour Mitsuba 3.
 
-La revue de littérature présente la théorie importante liée à la difficulté d'utiliser plusieurs algorithmes de rendu pour une même scène, ainsi que l'état de l'art sur le rendu des cheveux et de la fourrure. Elle introduit également les notions essentielles de processus gaussiens et de GPIS.
+La revue de littérature présente la théorie importante liée à la difficulté d’utiliser plusieurs algorithmes de rendu pour une même scène, ainsi que l’état de l’art sur le rendu des cheveux et de la fourrure. Elle introduit également les notions essentielles de processus gaussiens et de GPIS.
 
-Les GPIS ne sont pas nouveaux, mais leur utilisation pour le rendu de scènes est relativement récente et n'a été démontrée jusqu'à présent que par l'équipe de \textcite{seyb24from}. Il serait pertinent d'implémenter l'algorithme présenté dans le moteur de rendu largement utilisé Mitsuba 3. Dans ce rapport, je présente le processus de décision ayant mené au choix du moteur de rendu et l'état actuel de la preuve de concept.
+Les GPIS ne sont pas nouveaux, mais leur utilisation pour le rendu de scènes est relativement récente et n’a été démontrée jusqu’à présent que par l’équipe de \textcite{seyb24from}. Il serait pertinent d’implémenter l’algorithme présenté dans le moteur de rendu largement utilisé Mitsuba 3. Dans ce rapport, je présente le processus de décision ayant mené au choix du moteur de rendu et l’état actuel de la preuve de concept.
 
-Enfin, je décris comment l'implémentation GPIS sera comparée à l'approche de référence basée sur le path tracing Monte Carlo.
+Enfin, je décris comment l’implémentation GPIS sera comparée à l’approche de référence basée sur le path tracing Monte Carlo.
