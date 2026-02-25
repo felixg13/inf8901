@@ -1,0 +1,24 @@
+\subsection{Scene Representation}
+
+Scene representation in rendering refers to how 3D environments and their constituent elements are organized, stored, and described for use in rendering pipelines. Modern scene description formats like Universal Scene Description (USD) and GL Transmission Format (glTF) serve as the foundation for this organization.
+
+USD, developed by Pixar, is designed for storage, interchange, and interoperability between different 3D packages, focusing on editable scene descriptions for digital creation tools. glTF is optimized for content delivery and final rendering, particularly for web and real-time applications. These formats encode various types of assets including mesh objects, characters with skeletal systems and hair, and participating media such as smoke, fog, and steam.
+
+\subsubsection{Rendering Pipeline Diversity}
+
+Different types of media require specialized rendering approaches. For example, Blender Cycles employs a volumetric path tracer for rendering participating media while using standard ray tracing for mesh-based assets. This separation reflects the fundamental differences in how light interacts with surfaces versus volumes.
+
+\subsubsection{Asset Encoding Formats}
+
+The landscape of asset encoding is highly disparate, with each asset type requiring its own specialized representation:
+
+\textbf{Mesh Assets}: Mesh-based geometry typically uses approaches similar to the Wavefront OBJ format, which encodes vertex positions, normals, texture coordinates, and vertex indices that define the topology of triangular or polygonal faces.
+
+\textbf{Participating Media}: Volumetric data such as smoke, fog, fire, and clouds is commonly stored using formats like OpenVDB, an open-source library developed initially by DreamWorks Animation for working with sparse volumetric data. OpenVDB allows efficient storage of voxel structures for smoke, fire, and fluid simulations using a hierarchical sparse voxel structure that only stores occupied regions, dramatically reducing memory requirements compared to dense volumetric grids.
+
+\textbf{Strand-Based Hair and Fur}: Hair and fur present unique encoding challenges. Hair strands are typically represented as curves, often using cubic Catmull-Rom splines or Bézier curves, with control points defining the strand's path. These representations include per-vertex width information along the spline to capture the tapering of individual hair strands from root to tip. The encoding must store not just the centerline curve but also width parameters, allowing renderers to properly reconstruct the volumetric nature of hair during rendering.
+
+\subsubsection{The Fragmentation Challenge}
+
+This diversity of representation formats means that rendering pipelines must support multiple asset types, each with distinct memory layouts, intersection routines, and shading models. A unified approach that could handle surfaces, volumes, and curves through a single representation would potentially simplify rendering architectures. This is part of the motivation for exploring techniques like GPIS, which can potentially represent various geometric primitives through a unified mathematical framework.
+

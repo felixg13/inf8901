@@ -1,0 +1,38 @@
+# Dossier de compilation LaTeX
+build/
+
+# PDFs générés dans la racine (si make copy ou make copy-plan)
+document.pdf
+plan.pdf
+
+# Fichiers LaTeX auxiliaires (au cas où ils seraient générés à la racine)
+*.aux
+*.log
+*.bbl
+*.blg
+*.toc
+*.out
+*.lof
+*.lot
+*.fdb_latexmk
+*.fls
+*.synctex.gz
+*.nav
+*.snm
+*.vrb
+
+# Fichiers temporaires
+*~
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# Fichiers d'éditeurs
+.vscode/
+.idea/
+*.sublime-*
+
+# Fichiers de backup
+*.bak
+*.backup

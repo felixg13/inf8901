@@ -1,0 +1,12 @@
+\section{Introduction}
+Path tracing algorithms have become ubiquitous in state-of-the-art renderers. Monte Carlo path tracers have been used to render meshes, while volumes are rendered using volumetric path tracing. Some media fall between both volume and mesh representations, such as hair and fur.
+
+A new exciting paradigm was recently presented by \citeauthor{seyb24from} in \citetitle{seyb24from} \cite{seyb24from}. It proposes a novel path tracing algorithm to render Gaussian Process Implicit Surfaces (GPIS), enabling a new continuum of assets to be represented using the same algorithm.
+
+This research aims to determine whether hair rendering can be done efficiently using this new continuum. This partial progress report presents the findings and orientation of my research project, as well as the advancement on the proof of concept regarding a custom GPIS shape plugin for Mitsuba 3.
+
+The literature review portion presents the important theory related to the difficulty of using multiple rendering algorithms for the same scene, as well as the state of the art on rendering hair and fur. It also introduces the important notions of Gaussian processes and GPIS.
+
+GPIS are not novel, but using them to render scenes is relatively new and has only been demonstrated by the \textcite{seyb24from} team. It would be an exciting development to implement the presented algorithm into the widely used Mitsuba 3 renderer. As of this partial progress report, I will present the decision process for the chosen renderer and the current state of the proof of concept.
+
+Finally, I will present how we will compare the GPIS implementation to the baseline Monte Carlo path tracing approach.
