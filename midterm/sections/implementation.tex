@@ -1,85 +1,83 @@
 \section{Implementation}
 
-\subsection{Choosing a Renderer}
+\subsection{Choix du moteur de rendu}
 
-As discussed, to render a GPIS using light transport you need to sample ray intersections from a conditioned Gaussian process and return surface interactions like a regular light transport algorithm.
+Comme expliqué précédemment, pour rendre une GPIS via le transport de la lumière, il faut pouvoir échantillonner les intersections de rayons à partir d’un processus gaussien conditionné et retourner des interactions de surface comme dans un algorithme classique de transport de la lumière.
 
-A ground-up implementation could be realized from scratch using CUDA or OpenGL compute shaders. This would involve defining scene traversal, ray intersection routines, multiple importance sampling, surface interactions, and other components, as well as scene parsing and uploading to GPU memory from the CPU. This approach would provide complete control over the renderer but also requires implementing substantial ray tracing boilerplate unrelated to GPIS.
+Une implémentation complète depuis zéro pourrait être réalisée en utilisant CUDA ou des compute shaders OpenGL. Cela impliquerait de définir la traversal de scène, les routines d’intersection de rayons, l’échantillonnage d’importance multiple, les interactions de surface, ainsi que le parsing de scène et le chargement en mémoire GPU depuis le CPU. Cette approche donne un contrôle total sur le moteur mais impose d’implémenter beaucoup de code d’infrastructure de lancer de rayons sans rapport direct avec les GPIS.
 
-Alternatively, we could create a custom node for a state-of-the-art renderer like Blender Cycles \cite{Blender} or Autodesk Arnold. \cite{Arnold} Both renderers use Monte Carlo path tracing for volumetric media and mesh-based assets, and they allow the creation of plugins or ``nodes'' to define custom behavior. Unfortunately, they do not provide sufficient flexibility to define custom ray intersection behavior from sampling a Gaussian process, which is essential for GPIS integration.
+En alternative, on pourrait créer un nœud personnalisé pour un moteur contemporain comme Blender Cycles \cite{Blender} ou Autodesk Arnold \cite{Arnold}. Ces moteurs utilisent le path tracing Monte Carlo pour les médias volumétriques et les objets maillés, et permettent la création de plugins ou « nodes » pour définir des comportements personnalisés. Malheureusement, ils ne proposent pas suffisamment de flexibilité pour définir des routines d’intersection de rayons personnalisées basées sur l’échantillonnage d’un processus gaussien, fonctionnalité essentielle pour intégrer les GPIS.
 
-A third option is using research-focused renderers. Tungsten \cite{Tungsten} is the renderer used by \textcite{seyb24from,xu25practical}. It was developed by \textcite{Tungsten}, and the GPIS implementation is available on github. Although publicly available, it is not designed for public use and lacks documentation. The released version does not support loading hair files and conditioning Gaussian processes from the retrieved splines. Adding this functionality would be an interesting extension but would require reverse-engineering Bitterli's code.
+Une troisième option consiste à utiliser des moteurs orientés recherche. Tungsten \cite{Tungsten} est le moteur employé par \textcite{seyb24from,xu25practical}. Bien que l’implémentation GPIS y soit disponible, le projet public n’est pas conçu pour un usage large et manque de documentation. La version publiée ne supporte pas le chargement des fichiers de cheveux ni la conditionnement des processus gaussiens à partir des splines récupérées, ce qui exigerait une rétro-ingénierie du code.
 
-Mitsuba3 \cite{Mitsuba3} is a popular option for research-based rendering. It is a retargetable renderer developed by \textcite{Mitsuba3} at EPFL. It exposes a Python API for defining custom plugins such as custom integrators or custom BSDFs. While it does not allow defining custom ray intersection routines through the Python API, this is possible by implementing a custom shape through the C++17 codebase.
+Mitsuba 3 \cite{Mitsuba3} constitue une option populaire pour la recherche en rendu. Il s’agit d’un moteur retargetable développé à l’EPFL qui expose une API Python pour définir des plugins personnalisés tels que des intégrateurs ou des BSDF. Bien que l’API Python ne permette pas de définir des routines d’intersection personnalisées, cela reste possible en implémentant une forme personnalisée dans le code C++17.
 
-Mitsuba3, being a research-oriented open-source project, makes it an good choice. Compared to the from-scratch approach, it saves time on implementing ray tracing routines. It is actively maintained and documented, unlike Tungsten, and it provides significant flexibility while supporting retargetable execution, unlike Cycles and Arnold.
+Étant un projet open source orienté recherche, Mitsuba 3 représente un bon compromis : par rapport à une implémentation complète à partir de zéro, il permet de gagner du temps en réutilisant les routines de lancer de rayons existantes. Il est activement maintenu et documenté, contrairement à Tungsten, et offre une flexibilité significative tout en supportant l’exécution retargetable, contrairement à Cycles et Arnold.
 
 \subsection{Mitsuba 3}
-From the GitHub page:
+
+D’après la page GitHub :
 \begin{quote}
-Mitsuba 3 is a research-oriented rendering system for forward and inverse light transport simulation developed at EPFL in Switzerland. It consists of a core library and a set of plugins that implement functionality ranging from materials and light sources to complete rendering algorithms. Mitsuba 3 is retargetable: this means that the underlying implementations and data structures can transform to accomplish various different tasks. \cite{Mitsuba3}
+Mitsuba 3 est un système de rendu orienté recherche pour la simulation du transport de la lumière direct et inverse développé à l’EPFL en Suisse. Il comprend une bibliothèque cœur et un ensemble de plugins implémentant des fonctionnalités allant des matériaux et sources lumineuses jusqu’à des algorithmes de rendu complets. Mitsuba 3 est retargetable : cela signifie que les implémentations et structures de données sous-jacentes peuvent être transformées pour accomplir différentes tâches. \cite{Mitsuba3}
 \end{quote}
 
-\subsubsection{The API}
-The following is taken from the official documentation for Mitsuba 3 \cite{Mitsuba3}.
+\subsubsection{L’API}
+Les éléments suivants sont tirés de la documentation officielle de Mitsuba 3 \cite{Mitsuba3}.
 
 \paragraph{Plugins}
-The path tracing architecture of Mitsuba is separated into components called plugins. They represent the systems needed for rendering. I will present the relevant ones for implementing a GPIS-based shape.
+L’architecture de path tracing de Mitsuba est séparée en composants appelés plugins, qui représentent les systèmes nécessaires au rendu. Les composants pertinents pour l’implémentation d’une forme basée GPIS seront présentés ci-après.
 
-\paragraph{Integrator}
-Integrators are responsible for defining how to solve the light transport equation. They handle scene traversal and determine the rendering strategy. Most integrators define a depth parameter that controls how many bounces the ray will perform before returning a sample. The path tracer integrator is an existing plugin and serves as a good default. It handles much of the heavy lifting of the rendering equation and implements useful optimizations such as multiple importance sampling.
+\paragraph{Intégrateur}
+Les intégrateurs définissent la stratégie de résolution de l’équation du transport de la lumière. Ils gèrent la traversal de scène et contrôlent des paramètres tels que la profondeur maximale de rebonds. L’intégrateur de path tracer est un plugin existant qui prend en charge l’essentiel du calcul et des optimisations utiles comme l’échantillonnage d’importance multiple.
 
 \paragraph{Shapes}
-Shapes define surfaces that mark the intersection between different types of materials, such as the transition between air and a solid surface. They can also define intersections with volumes like smoke. All shapes must define a bounding box, which is used by the integrator for scene traversal.
+Les shapes définissent les surfaces marquant l’intersection entre différents types de matériaux et peuvent aussi définir des intersections avec des volumes. Toutes les shapes doivent fournir une boîte englobante utilisée par l’intégrateur.
 
-Existing shape plugins in Mitsuba include basic primitives like cubes, spheres, planes, and disks, as well as mesh-based shapes that load vertices from Wavefront (.obj) and PLY formats.
+Les shapes existantes incluent des primitives basiques (cubes, sphères, plans) ainsi que des shapes maillées chargeant des fichiers OBJ ou PLY.
 
-This project will require the creation of a custom shape called \texttt{gpis\_shape} that can load vertices and condition a Gaussian process. The Shape API is responsible for implementing the ray intersection routine called by the integrator. This routine returns a surface interaction object that defines how light interacted with the shape once the bounding box is crossed. 
+Ce projet nécessitera la création d’une shape personnalisée nommée \texttt{gpis\_shape} capable de charger des sommets et de conditionner un processus gaussien. L’API Shape est responsable d’implémenter la routine d’intersection de rayons utilisée par l’intégrateur et qui retourne un objet d’interaction de surface.
 
 \paragraph{BSDF}
-Bidirectional Scattering Distribution Functions (BSDFs) are surface scattering models that represent how light bounces off a specific surface. The implementation of a custom BSDF should not be needed, as the scattering from the GPIS should behave exactly like a mesh-based counterpart. Therefore, the \texttt{gpis\_shape} implementation should be compatible with any BSDF. An existing hair BSDF exists that will be used, which implements the \textcite{chiang2016} model.
+Les BSDFs (Bidirectional Scattering Distribution Functions) représentent le modèle de dispersion de la surface. L’implémentation d’un BSDF personnalisé ne semble pas nécessaire, car la diffusion d’une GPIS doit se comporter comme un équivalent maillé. Une BSDF cheveux existante sera réutilisée (modèle de \textcite{chiang2016}).
 
 \paragraph{Sampler}
-Samplers generate the random numbers used in Monte Carlo integration for rendering. They control the quality and distribution of samples taken during the rendering process.
+Les samplers génèrent les nombres aléatoires pour l’intégration Monte Carlo et contrôlent la qualité des échantillons.
 
-
-\subsection{Proof of Concept}
-I implemented a proof of concept by adding a \texttt{gpis\_sphere} shape plugin to the Mitsuba 3 renderer. The custom shape conditions a Gaussian process using 201 observation points: 100 surface points, 100 exterior points, and one interior point. The renderer represents the intersection with the mean of the conditioned Gaussian process. The sphere is placed in a traditional Cornell Box scene through Mitsuba's XML scene description, with walls using the existing rectangle shape and lighting provided by an area light emitter plugin.
+\subsection{Preuve de concept}
+Une preuve de concept a été réalisée en ajoutant un plugin \texttt{gpis\_sphere} à Mitsuba 3. La forme conditionne un processus gaussien à partir de 201 observations : 100 points de surface, 100 points extérieurs et un point intérieur. Le renderer représente l’intersection par la moyenne du processus gaussien conditionné. La sphère est placée dans une scène de type Cornell Box via la description de scène XML de Mitsuba, les murs étant des rectangles existants et l’éclairage fourni par une source de type area light.
 
 \begin{figure}[htbp]
     \centering
     \includegraphics[width=0.7\textwidth]{img/gpis_render.png}
-    \caption{Cornell Box scene with GPIS sphere rendered at 256x256 resolution using 128 samples per pixel. Render time: 30 minutes.}
+    \caption{Scène Cornell Box avec une sphère GPIS rendue en 256x256 utilisant 128 échantillons par pixel. Temps de rendu : 30 minutes.}
     \label{fig:gpis_sphere}
 \end{figure}
 
-\subsection{Development Challenges}
+\subsection{Difficultés de développement}
 
-\subsubsection{Build Environment Configuration}
-Implementing the proof of concept presented several technical challenges. Initially, compiling Mitsuba 3 on my machine required careful environment configuration with precise version matching of dependencies. Rather than working directly on a fork of Mitsuba, I configured the system to link Mitsuba 3 as an external library to my plugin, which required understanding the Mitsuba 3 CMake compilation pipeline.
+\subsubsection{Configuration de l’environnement de compilation}
+La mise en œuvre de la preuve de concept a présenté plusieurs défis techniques. La compilation de Mitsuba 3 a nécessité une configuration précise des dépendances. Plutôt que de travailler directement sur un fork de Mitsuba, j’ai configuré le système pour lier Mitsuba 3 comme bibliothèque externe au plugin via CMake, ce qui a exigé une compréhension de la pipeline de compilation de Mitsuba 3.
 
-\subsubsection{Gaussian Process Library Development}
-Writing the Gaussian Process helper library required multiple iterations. I first attempted to use the existing \texttt{libgp} library, but its interface did not expose the necessary functionality for sampling the Gaussian process. Next, I tried implementing a custom Gaussian library using Eigen3, but type conflicts arose with DrJit types.
+\subsubsection{Développement de la bibliothèque de processus gaussien}
+L’écriture d’un utilitaire pour les processus gaussiens a demandé plusieurs itérations. J’ai d’abord tenté d’utiliser \texttt{libgp}, mais son interface n’exposait pas la fonctionnalité nécessaire pour l’échantillonnage. Ensuite, une implémentation basée sur Eigen3 a posé des conflits de types avec DrJit.
 
-DrJit is the just-in-time compiler used by Mitsuba 3, developed by the EPFL team. DrJit enables compilation to CUDA, LLVM, or scalar backends from unified source code, providing seamless parallelization optimization and automatic differentiation. However, treating the intersection routine as SIMD created conflicts with standard C++ and Eigen3 types. The solution was to implement the Gaussian process class entirely using DrJit syntax to ensure compatibility with the Mitsuba shape class interface.
+DrJit est le compilateur JIT utilisé par Mitsuba 3, permettant la compilation vers CUDA, LLVM ou un backend scalaire à partir d’un code unifié. Le traitement SIMD de la routine d’intersection a créé des conflits avec les types standards C++ et Eigen3; la solution a été d’implémenter la classe de processus gaussien entièrement en syntaxe DrJit pour garantir la compatibilité.
 
-Currently, \texttt{gaussian\_process.h} is a simple Gaussian process helper that enables conditioning a model from surface, exterior, and interior observations using an RBF kernel. For this proof of concept, I have not yet implemented correlated sampling from the conditioned process. Instead, the intersection routine uses a simple ray marching algorithm that searches for intersections with the mean of the process.
+Actuellement, \texttt{gaussian\_process.h} est un helper simple permettant de conditionner un modèle à partir d’observations de surface, extérieures et intérieures en utilisant un noyau RBF. Pour cette preuve de concept, l’échantillonnage corrélé à partir du postérieur n’a pas encore été implémenté : la routine d’intersection utilise un simple ray marching pour trouver les intersections avec la moyenne du processus.
 
-\subsection{Results and Analysis}
+\subsection{Résultats et analyse}
 
-Figure~\ref{fig:gpis_sphere} shows a Cornell Box with a GPIS sphere at the center. The sphere exhibits several notable characteristics. First, the surface is not perfectly smooth and shows bumps at the conditioned points, which is expected given the sparse conditioning of only 100 surface points and the RBF kernel interpolation between them.
+La figure~\ref{fig:gpis_sphere} montre une Cornell Box avec une sphère GPIS au centre. La surface présente des bosselures aux points conditionnés, attendu avec seulement 100 points de surface et un noyau RBF.
 
-The lighting behavior demonstrates correct integration with Mitsuba 3's BSDF system: strong light reflection appears at the top of the sphere, while the sides reflect the wall colors. This confirms that the implementation is compatible with existing Mitsuba 3 BSDFs.
+Le comportement lumineux confirme l’intégration correcte avec le système BSDF de Mitsuba 3 : un fort reflet apparaît au sommet de la sphère et les côtés reflètent les couleurs des murs, validant la compatibilité avec les BSDF existants.
 
-An approximation in the current implementation is the use of regular sphere normals instead of the gradient method, meaning the normals are not consistent with the actual surface orientation. I believe this inconsistency causes the black triangular artifacts at the bottom of the sphere.
+Une approximation de l’implémentation actuelle est l’utilisation de normales de sphère régulières plutôt que la méthode basée sur le gradient, d’où des artefacts triangulaires noirs. La sphère montre également une apparence partiellement translucide au sommet, une conséquence souhaitable de l’approche GPIS.
 
-The sphere also exhibits a visibly transparent appearance at the top, which is a desirable consequence of the GPIS stochastic approach. This gives confidence that this implementation can represent both hard mesh surfaces and participating media along the same continuum.
+\subsection{Étapes suivantes}
 
-\subsection{Next Steps}
+La prochaine phase se concentrera sur trois améliorations clés : premièrement, implémenter l’échantillonnage corrélé depuis la distribution postérieure; deuxièmement, ajouter le calcul des normales basé sur le gradient. Avec ces deux améliorations, la sphère sera rendue conformément à l’approche décrite par \textcite{seyb24from}.
 
-The next phase of this implementation will focus on three key improvements. First, I will implement correlated sampling from the posterior distribution. Second, I will add the gradient-based approach for computing surface normals. With these two improvements, the sphere will be rendered exactly as described in the GPIS approach from \textcite{seyb24from}.
+Ensuite, le système sera étendu pour rendre des maillages en conditionnant le processus sur les sommets importés depuis des fichiers OBJ. L’augmentation du nombre de points d’observation ralentira le rendu, rendant pertinente l’approche de matrice creuse proposée par \textcite{xu25practical} pour préserver les performances.
 
-Following these improvements, I will extend the system to render meshes by conditioning the process on imported vertices from OBJ files. Increasing the number of observation points from mesh data will slow down rendering, making the sparse matrix approach from \textcite{xu25practical} particularly relevant for maintaining performance.
-
-Finally, I will investigate which kernel is adequate for rendering hair, as we do not want different strands to merge together. This represents a novel problem that is unexplored in the current literature on GPIS and hair rendering.
+Enfin, j’étudierai quel noyau convient le mieux pour le rendu des cheveux afin d’éviter la fusion indésirable des mèches, un problème encore largement inexploré dans la littérature actuelle sur GPIS et le rendu des cheveux.
 

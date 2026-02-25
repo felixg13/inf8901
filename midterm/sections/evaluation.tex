@@ -1,28 +1,29 @@
 \section{Evaluation}
 
-\subsection{Methodology}
+\subsection{Méthodologie}
 
-We will evaluate the GPIS implementation using two key metrics: image quality and rendering performance.
+L’évaluation de l’implémentation GPIS se fera selon deux métriques clés : la qualité d’image et les performances de rendu.
 
-\subsubsection{Image Quality Assessment}
+\subsubsection{Évaluation de la qualité d’image}
 
-We will use Mean Squared Error (MSE) to compare images rendered with a regular path tracer against those rendered with the GPIS object. MSE provides a pixel-by-pixel quantitative measure of the difference between two images, making it suitable for assessing whether the GPIS approach produces visually equivalent results to traditional mesh-based rendering.
+Nous utiliserons l’erreur quadratique moyenne (MSE) pour comparer des images rendues avec un path tracer standard à celles rendues avec l’objet GPIS. La MSE fournit une mesure quantitative pixel-à-pixel de la différence entre deux images, adaptée pour évaluer si l’approche GPIS produit des résultats visuellement équivalents au rendu maillé traditionnel.
 
-MSE is calculated as:
+La MSE se calcule comme suit :
 
 \begin{equation}
 \text{MSE} = \frac{1}{N} \sum (I_{\text{reference}} - I_{\text{gpis}})^2
 \end{equation}
 
-where $N$ is the total number of pixels, $I_{\text{reference}}$ represents pixel values from the standard path tracer, and $I_{\text{gpis}}$ represents pixel values from the GPIS renderer.
+où $N$ est le nombre total de pixels, $I_{\text{reference}}$ représente les valeurs de pixels du path tracer standard et $I_{\text{gpis}}$ celles du renderer GPIS.
 
-MSE is a viable metric for this evaluation because:
+La MSE est pertinente car :
 
 \begin{itemize}[noitemsep]
-    \item It provides an objective, quantitative measure of image similarity
-    \item It is widely used in rendering research for comparing ground truth images
-    \item Lower MSE values directly correspond to closer visual matches
+    \item Elle fournit une mesure objective et quantitative de similarité d’image
+    \item Elle est largement utilisée en recherche en rendu pour comparer des images de référence
+    \item Des valeurs de MSE plus faibles correspondent directement à des correspondances visuelles plus proches
 \end{itemize}
 
-\subsubsection{Rendering Performance}
-We will compare rendering times between the traditional mesh-based approach and the GPIS approach at three different sample rates: 8 samples per pixel (spp), 32 spp, and 128 spp. This will enable us to quantify the performance overhead of the GPIS approach relative to standard ray tracing. Based on the additional computational cost of Gaussian process evaluation and correlated sampling, I anticipate the GPIS approach will be 5-10x slower than traditional mesh rendering.
+\subsubsection{Performances de rendu}
+
+Nous comparerons les temps de rendu entre l’approche maillée traditionnelle et l’approche GPIS pour trois taux d’échantillonnage : 8, 32 et 128 échantillons par pixel. Cela permettra de quantifier le surcoût de performance lié à l’évaluation du processus gaussien et à l’échantillonnage corrélé. Sur la base du coût computationnel additionnel, on s’attend à un ralentissement de l’ordre de 5–10× par rapport au rendu maillé classique.

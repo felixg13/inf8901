@@ -1,12 +1,12 @@
 \section{Introduction}
-Path tracing algorithms have become ubiquitous in state-of-the-art renderers. Monte Carlo path tracers have been used to render meshes, while volumes are rendered using volumetric path tracing. Some media fall between both volume and mesh representations, such as hair and fur.
+Les algorithmes de tracé de rayon sont omniprésents dans les moteurs de rendu de pointe. Les traceurs de chemin de Monte Carlo ont été utilisés pour rendre des maillages, tandis que les volumes sont rendus à l’aide du path tracing volumétrique. Certains médias se situent entre les représentations volumétriques et surfaciques, comme les cheveux et la fourrure.
 
-A new exciting paradigm was recently presented by \citeauthor{seyb24from} in \citetitle{seyb24from} \cite{seyb24from}. It proposes a novel path tracing algorithm to render Gaussian Process Implicit Surfaces (GPIS), enabling a new continuum of assets to be represented using the same algorithm.
+Un nouveau paradigme prometteur a récemment été présenté par \citeauthor{seyb24from} dans \citetitle{seyb24from} \cite{seyb24from}. Ils proposent un nouvel algorithme de tracé de rayon pour faire le rendu de surfaces implicites définies par processus de Gauss (GPIS), ouvrant ainsi la voie à un continuum d'actifs pouvant être représentés avec le même algorithme.
 
-This research aims to determine whether hair rendering can be done efficiently using this new continuum. This partial progress report presents the findings and orientation of my research project, as well as the advancement on the proof of concept regarding a custom GPIS shape plugin for Mitsuba 3.
+Cette recherche vise à déterminer si le rendu des cheveux peut être réalisé efficacement à l’aide de ce nouveau continuum. Ce rapport d’avancement partiel présente les résultats et l’orientation du projet de recherche, ainsi que les progrès réalisés sur la preuve de concept concernant un plugin de forme GPIS pour Mitsuba 3.
 
-The literature review portion presents the important theory related to the difficulty of using multiple rendering algorithms for the same scene, as well as the state of the art on rendering hair and fur. It also introduces the important notions of Gaussian processes and GPIS.
+La revue de littérature présente la théorie importante liée à la difficulté d’utiliser plusieurs algorithmes de rendu pour une même scène, ainsi que l’état de l’art sur le rendu des cheveux et de la fourrure. Elle introduit également les notions essentielles de processus gaussiens et de GPIS.
 
-GPIS are not novel, but using them to render scenes is relatively new and has only been demonstrated by the \textcite{seyb24from} team. It would be an exciting development to implement the presented algorithm into the widely used Mitsuba 3 renderer. As of this partial progress report, I will present the decision process for the chosen renderer and the current state of the proof of concept.
+Les GPIS ne sont pas nouveaux, mais leur utilisation pour le rendu de scènes est relativement récente et n’a été démontrée jusqu’à présent que par l’équipe de \textcite{seyb24from}. Il serait pertinent d’implémenter l’algorithme présenté dans le moteur de rendu largement utilisé Mitsuba 3. Dans ce rapport, je présente le processus de décision ayant mené au choix du moteur de rendu et l’état actuel de la preuve de concept.
 
-Finally, I will present how we will compare the GPIS implementation to the baseline Monte Carlo path tracing approach.
+Enfin, je décris comment l’implémentation GPIS sera comparée à l’approche de référence basée sur le path tracing Monte Carlo.
