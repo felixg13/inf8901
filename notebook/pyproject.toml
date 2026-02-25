@@ -1,0 +1,14 @@
+[project]
+name = "notebook"
+version = "0.1.0"
+requires-python = ">=3.11"
+dependencies = [
+    "matplotlib>=3.10.8",
+    "mitsuba>=3.7.1",
+    "numpy>=2.4.1",
+]
+
+[dependency-groups]
+dev = [
+    "ipykernel>=7.1.0",
+]

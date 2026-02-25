@@ -1,0 +1,62 @@
+<scene version="3.0.0" >
+	<default name="integrator" value="path" />
+	<default name="spp" value="64" />
+	<default name="resy" value="1000" />
+	<default name="resx" value="1200" />
+	<default name="max_depth" value="65" />
+
+	<integrator type="$integrator" >
+		<integer name="max_depth" value="$max_depth" />
+	</integrator>
+	<sensor type="perspective" >
+		<float name="fov" value="35" />
+		<transform name="to_world" >
+			<matrix value="-1 4.24672e-010 1.50958e-007 -0.055286 1.11022e-016 0.999996 -0.00281317 5.92976 -1.50959e-007 -0.00281317 -0.999996 17.0651 0 0 0 1"/>
+		</transform>
+		<sampler type="independent" >
+			<integer name="sample_count" value="$spp" />
+		</sampler>
+		<film type="hdrfilm" >
+			<integer name="width" value="$resx" />
+			<integer name="height" value="$resy" />
+            <string name="file_format" value="openexr"/>
+			<string name="pixel_format" value="rgb" />
+			<rfilter type="tent" />
+		</film>
+	</sensor>
+
+	<bsdf type="hair" id="black_hair">
+        <float name="eumelanin" value="8"/>
+	</bsdf>
+	<bsdf type="hair" id="red_hair">
+        <float name="eumelanin" value="2"/>
+	</bsdf>
+	<bsdf type="hair" id="brown_hair">
+        <float name="eumelanin" value="0.8"/>
+	</bsdf>
+	<bsdf type="hair" id="blonde_hair">
+        <float name="eumelanin" value="0.2"/>
+	</bsdf>
+
+	<shape type="bsplinecurve" >
+        <string name="filename" value="models/black.m3hair"/>
+		<ref id="black_hair" />
+	</shape>
+	<shape type="bsplinecurve" >
+        <string name="filename" value="models/red.m3hair"/>
+		<ref id="red_hair" />
+	</shape>
+	<shape type="bsplinecurve" >
+        <string name="filename" value="models/brown.m3hair"/>
+		<ref id="brown_hair" />
+	</shape>
+	<shape type="bsplinecurve" >
+        <string name="filename" value="models/blonde.m3hair"/>
+		<ref id="blonde_hair" />
+	</shape>
+
+    <emitter type="directional">
+		<vector name="direction" value="0.376047, -0.758426, -0.532333"/>
+		<rgb name="irradiance" value="19.091171, 19.091171, 19.091171"/>
+	</emitter>
+</scene>
