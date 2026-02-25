@@ -2,11 +2,11 @@
 
 \subsection{Méthodologie}
 
-L’évaluation de l’implémentation GPIS se fera selon deux métriques clés : la qualité d’image et les performances de rendu.
+L'évaluation de l'implémentation GPIS se fera selon deux métriques clés : la qualité d'image et les performances de rendu.
 
-\subsubsection{Évaluation de la qualité d’image}
+\subsubsection{Évaluation de la qualité d'image}
 
-Nous utiliserons l’erreur quadratique moyenne (MSE) pour comparer des images rendues avec un path tracer standard à celles rendues avec l’objet GPIS. La MSE fournit une mesure quantitative pixel-à-pixel de la différence entre deux images, adaptée pour évaluer si l’approche GPIS produit des résultats visuellement équivalents au rendu maillé traditionnel.
+Nous utiliserons l'erreur quadratique moyenne (MSE) pour comparer des images rendues avec un path tracer standard à celles rendues avec l'objet GPIS. La MSE fournit une mesure quantitative pixel-à-pixel de la différence entre deux images, adaptée pour évaluer si l'approche GPIS produit des résultats visuellement équivalents au rendu maillé traditionnel.
 
 La MSE se calcule comme suit :
 
@@ -19,11 +19,11 @@ où $N$ est le nombre total de pixels, $I_{\text{reference}}$ représente les va
 La MSE est pertinente car :
 
 \begin{itemize}[noitemsep]
-    \item Elle fournit une mesure objective et quantitative de similarité d’image
+    \item Elle fournit une mesure objective et quantitative de similarité d'image
     \item Elle est largement utilisée en recherche en rendu pour comparer des images de référence
     \item Des valeurs de MSE plus faibles correspondent directement à des correspondances visuelles plus proches
 \end{itemize}
 
 \subsubsection{Performances de rendu}
 
-Nous comparerons les temps de rendu entre l’approche maillée traditionnelle et l’approche GPIS pour trois taux d’échantillonnage : 8, 32 et 128 échantillons par pixel. Cela permettra de quantifier le surcoût de performance lié à l’évaluation du processus gaussien et à l’échantillonnage corrélé. Sur la base du coût computationnel additionnel, on s’attend à un ralentissement de l’ordre de 5–10× par rapport au rendu maillé classique.
+Nous comparerons les temps de rendu entre l'approche maillée traditionnelle et l'approche GPIS pour trois taux d'échantillonnage : 8, 32 et 128 échantillons par pixel. Cela permettra de quantifier le surcoût de performance lié à l'évaluation du processus gaussien et à l'échantillonnage corrélé. Sur la base du coût computationnel additionnel, on s'attend à un ralentissement de l'ordre de 5–10× par rapport au rendu maillé classique.
