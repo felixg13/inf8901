@@ -1,0 +1,347 @@
+% ========================================
+% BIBLIOGRAPHIE - PROJET DE RECHERCHE
+% Comparaison modèles Marschner vs. GPIS
+% ========================================
+
+% ========================
+% ARTICLE PRINCIPAL - MARSCHNER
+% ========================
+
+@article{marschner2003,
+    author = {Marschner, Stephen R. and Jensen, Henrik Wann and Cammarano, Mike and Worley, Steve and Hanrahan, Pat},
+    title = {Light Scattering from Human Hair Fibers},
+    year = {2003},
+    issue_date = {July 2003},
+    publisher = {Association for Computing Machinery},
+    address = {New York, NY, USA},
+    volume = {22},
+    number = {3},
+    issn = {0730-0301},
+    url = {https://doi.org/10.1145/882262.882345},
+    doi = {10.1145/882262.882345},
+    journal = {ACM Transactions on Graphics},
+    month = jul,
+    pages = {780--791},
+    numpages = {12},
+    keywords = {rendering, optical scattering, hair, fibers},
+    abstract = {Light scattering from hair is normally simulated in computer graphics using Kajiya and Kay's classic phenomenological model. We have made new measurements of scattering from individual hair fibers that exhibit visually significant effects not predicted by Kajiya and Kay's model. Our measurements go beyond previous hair measurements by examining out-of-plane scattering, and together with this previous work they show a multiple specular highlight and variation in scattering with rotation about the fiber axis. We explain the sources of these effects using a model of a hair fiber as a transparent elliptical cylinder with an absorbing interior and a surface covered with tilted scales. Based on an analytical scattering function for a circular cylinder, we propose a practical shading model for hair that qualitatively matches the scattering behavior shown in the measurements. In a comparison between a photograph and rendered images, we demonstrate the new model's ability to match the appearance of real hair.}
+}
+
+% ========================
+% EXTENSIONS MARSCHNER
+% ========================
+
+@article{huang2022microfacet,
+    title = {A Microfacet-based Hair Scattering Model},
+    author = {Huang, Weizhen and Hullin, Matthias and Hanika, Johannes},
+    journal = {Computer Graphics Forum},
+    year = {2022},
+    volume = {41},
+    number = {4},
+    pages = {1--15},
+    doi = {10.1111/cgf.14588},
+    abstract = {Introduces a microfacet-based, non-separable fiber BSDF that supports elliptical cross-sections and glint-like forward scattering while remaining importance-sampleable, addressing physical limitations and flat appearance of the original separable Marschner lobes}
+}
+
+@article{xu2011interactive,
+    title = {Interactive Hair Rendering and Appearance Editing under Environment Lighting},
+    author = {Xu, Kun and Ma, Li-Qian and Ren, Bo and Wang, Rui and Hu, Shimin},
+    journal = {ACM Transactions on Graphics (Proceedings of SIGGRAPH Asia)},
+    year = {2011},
+    volume = {30},
+    number = {6},
+    pages = {173:1--173:10},
+    doi = {10.1145/2024156.2024207},
+    abstract = {Derives a compact 1D circular Gaussian approximation of the Marschner scattering function, enabling closed-form integration with spherical radial basis function environment lights and real-time editing of Marschner parameters with both single and multiple scattering}
+}
+
+% ========================
+% APPROCHE GPIS - ARTICLE PRINCIPAL
+% ========================
+
+@article{seyb24from,
+    author = {Seyb, Dario and d'Eon, Eugene and Bitterli, Benedikt and Jarosz, Wojciech},
+    title = {From Microfacets to Participating Media: A Unified Theory of Light Transport with Stochastic Geometry},
+    journal = {ACM Transactions on Graphics (Proceedings of SIGGRAPH)},
+    year = {2024},
+    month = jul,
+    volume = {43},
+    number = {4},
+    doi = {10/gt5nh9},
+    keywords = {volumetric light transport, stochastic processes, implicit surfaces},
+    abstract = {This paper presents a unified theory of light transport based on stochastic geometry, enabling representation of both microfacets (rough surfaces) and participating media (volumes) within a single mathematical framework using Gaussian Process Implicit Surfaces (GPIS).}
+}
+
+% ========================
+% FONDEMENTS GPIS
+% ========================
+
+@article{martens2016gpis,
+    author = {Martens, Wolfram and Poffet, Yannick and Ramon, Pablo and Fitch, Robert and Sukkarieh, Salah},
+    year = {2016},
+    month = nov,
+    pages = {1--8},
+    title = {Geometric Priors for Gaussian Process Implicit Surfaces},
+    volume = {2},
+    number = {1},
+    journal = {IEEE Robotics and Automation Letters},
+    doi = {10.1109/LRA.2016.2631260},
+    abstract = {Cette article explique les travaux précédents qui ont été faits pour représenter des géométries 3D à l'aide de processus gaussiens.}
+}
+
+@article{xu25practical,
+    author = {Xu, Kehan and Bitterli, Benedikt and d'Eon, Eugene and Jarosz, Wojciech},
+    title = {Practical {G}aussian Process Implicit Surfaces with Sparse Convolutions},
+    journal = {ACM Transactions on Graphics (Proceedings of SIGGRAPH Asia)},
+    year = {2025},
+    month = dec,
+    volume = {44},
+    number = {6},
+    doi = {10.1145/3763329},
+    abstract = {Cette article publié en 2025 propose des améliorations pratiques face à la technique de Seyb et al., incluant des optimisations computationnelles avec convolutions creuses pour rendre les GPIS utilisables en production.}
+}
+
+% ========================
+% MILIEUX STOCHASTIQUES
+% ========================
+
+@article{davis2014generalized,
+    author = {Davis, Anthony B. and Xu, Feng},
+    title = {A Generalized Linear Transport Model for Spatially-Correlated Stochastic Media},
+    volume = {43},
+    issn = {2332-4325},
+    url = {http://dx.doi.org/10.1080/23324309.2014.978083},
+    doi = {10.1080/23324309.2014.978083},
+    number = {1--7},
+    journal = {Journal of Computational and Theoretical Transport},
+    publisher = {Informa UK Limited},
+    year = {2014},
+    month = dec,
+    pages = {474--514},
+    abstract = {L'article est crucial pour reproduire Seyb et al. car il fournit la loi de transmittance en puissance pour milieux corrélés, indispensable pour modéliser le transport de lumière dans une masse de cheveux vue comme un milieu stochastique corrélé plutôt qu'un simple volume exponentiel classique. Les media stochastiques aussi appelés random media sont des éléments d'une scène qui sont représentés comme un ensemble de particules avec une position aléatoire plutôt qu'une surface déterministe.}
+}
+
+% ========================
+% RÉFÉRENCES ADDITIONNELLES
+% ========================
+
+% Modèle de Kajiya-Kay (référence historique)
+@inproceedings{kajiya1989rendering,
+    author = {Kajiya, James T. and Kay, Timothy L.},
+    title = {Rendering Fur with Three Dimensional Textures},
+    booktitle = {Proceedings of the 16th Annual Conference on Computer Graphics and Interactive Techniques},
+    series = {SIGGRAPH '89},
+    year = {1989},
+    pages = {271--280},
+    doi = {10.1145/74333.74361},
+    publisher = {ACM},
+    address = {New York, NY, USA}
+}
+
+% Cook-Torrance (microfacettes)
+@article{cook1982reflectance,
+    author = {Cook, Robert L. and Torrance, Kenneth E.},
+    title = {A Reflectance Model for Computer Graphics},
+    journal = {ACM Transactions on Graphics},
+    volume = {1},
+    number = {1},
+    year = {1982},
+    pages = {7--24},
+    doi = {10.1145/357290.357293}
+}
+
+% GGX microfacettes
+@article{walter2007microfacet,
+    author = {Walter, Bruce and Marschner, Stephen R. and Li, Hongsong and Torrance, Kenneth E.},
+    title = {Microfacet Models for Refraction through Rough Surfaces},
+    journal = {Proceedings of the 18th Eurographics Conference on Rendering Techniques},
+    year = {2007},
+    pages = {195--206},
+    doi = {10.2312/EGWR/EGSR07/195-206}
+}
+
+% Path tracing
+@article{kajiya1986rendering,
+    author = {Kajiya, James T.},
+    title = {The Rendering Equation},
+    journal = {Computer Graphics (Proceedings of SIGGRAPH)},
+    volume = {20},
+    number = {4},
+    year = {1986},
+    pages = {143--150},
+    doi = {10.1145/15886.15902}
+}
+
+% Multiple importance sampling
+@article{veach1995optimally,
+    author = {Veach, Eric and Guibas, Leonidas J.},
+    title = {Optimally Combining Sampling Techniques for Monte Carlo Rendering},
+    journal = {Proceedings of SIGGRAPH},
+    year = {1995},
+    pages = {419--428},
+    doi = {10.1145/218380.218498}
+}
+
+% Henyey-Greenstein phase function
+@article{henyey1941diffuse,
+    author = {Henyey, L. G. and Greenstein, J. L.},
+    title = {Diffuse Radiation in the Galaxy},
+    journal = {The Astrophysical Journal},
+    volume = {93},
+    year = {1941},
+    pages = {70--83},
+    doi = {10.1086/144246}
+}
+
+% Beer-Lambert law
+@book{born1999principles,
+    author = {Born, Max and Wolf, Emil},
+    title = {Principles of Optics: Electromagnetic Theory of Propagation, Interference and Diffraction of Light},
+    edition = {7th},
+    publisher = {Cambridge University Press},
+    year = {1999},
+    isbn = {978-0521642224}
+}
+
+% Mitsuba renderer
+@article{jakob2022mitsuba3,
+    author = {Jakob, Wenzel and Speierer, S\'{e}bastien and Roussel, Nicolas and Nimier-David, Merlin and Vicini, Delio and Zeltner, Tizian and Nicolet, Baptiste and Crespo, Miguel and Leroy, Vincent and Zhang, Ziyi},
+    title = {Mitsuba 3 Renderer},
+    journal = {https://mitsuba-renderer.org},
+    year = {2022},
+    note = {Version 3.0.0}
+}
+
+% Arnold renderer
+@misc{arnold2023,
+    author = {{Autodesk}},
+    title = {Arnold Renderer},
+    year = {2023},
+    note = {Version 7.2},
+    howpublished = {\url{https://www.arnoldrenderer.com}}
+}
+
+% RenderMan
+@misc{renderman2023,
+    author = {{Pixar Animation Studios}},
+    title = {RenderMan},
+    year = {2023},
+    note = {Version 25},
+    howpublished = {\url{https://renderman.pixar.com}}
+}
+
+% V-Ray
+@misc{vray2023,
+    author = {{Chaos Group}},
+    title = {V-Ray},
+    year = {2023},
+    note = {Version 6.0},
+    howpublished = {\url{https://www.chaosgroup.com/vray}}
+}
+
+% Cycles (Blender)
+@misc{cycles2023,
+    author = {{Blender Foundation}},
+    title = {Cycles Renderer},
+    year = {2023},
+    howpublished = {\url{https://www.cycles-renderer.org}}
+}
+
+% Tungsten renderer
+@misc{tungsten2016,
+    author = {Bitterli, Benedikt},
+    title = {Tungsten Renderer},
+    year = {2016},
+    howpublished = {\url{https://github.com/tunabrain/tungsten}}
+}
+
+% Processus gaussiens (référence théorique)
+@book{rasmussen2006gaussian,
+    author = {Rasmussen, Carl Edward and Williams, Christopher K. I.},
+    title = {Gaussian Processes for Machine Learning},
+    publisher = {MIT Press},
+    year = {2006},
+    isbn = {978-0-262-18253-9},
+    url = {http://www.gaussianprocess.org/gpml/}
+}
+
+% Monte Carlo rendering
+@book{pharr2023physically,
+    author = {Pharr, Matt and Jakob, Wenzel and Humphreys, Greg},
+    title = {Physically Based Rendering: From Theory to Implementation},
+    edition = {4th},
+    publisher = {MIT Press},
+    year = {2023},
+    isbn = {978-0262048026}
+}
+
+% Von Mises-Fisher distribution
+@article{mardia1999directional,
+    author = {Mardia, Kanti V. and Jupp, Peter E.},
+    title = {Directional Statistics},
+    publisher = {Wiley},
+    year = {1999},
+    isbn = {978-0471953333}
+}
+
+% BVH (Bounding Volume Hierarchy)
+@article{wald2007ray,
+    author = {Wald, Ingo and Boulos, Solomon and Shirley, Peter},
+    title = {Ray Tracing Deformable Scenes Using Dynamic Bounding Volume Hierarchies},
+    journal = {ACM Transactions on Graphics},
+    volume = {26},
+    number = {1},
+    year = {2007},
+    pages = {6:1--6:18},
+    doi = {10.1145/1189762.1189769}
+}
+
+% Subsurface scattering
+@article{jensen2001practical,
+    author = {Jensen, Henrik Wann and Marschner, Stephen R. and Levoy, Marc and Hanrahan, Pat},
+    title = {A Practical Model for Subsurface Light Transport},
+    journal = {Proceedings of SIGGRAPH},
+    year = {2001},
+    pages = {511--518},
+    doi = {10.1145/383259.383319}
+}
+
+% Importance sampling phase functions
+@article{jakob2010building,
+    author = {Jakob, Wenzel},
+    title = {Building an Orthonormal Basis from a 3D Unit Vector Without Normalization},
+    journal = {Journal of Graphics Tools},
+    volume = {16},
+    number = {3},
+    year = {2012},
+    pages = {151--159},
+    doi = {10.1080/2151237X.2012.711391}
+}
+
+% OpenEXR format
+@misc{openexr2023,
+    author = {{Academy Software Foundation}},
+    title = {OpenEXR},
+    year = {2023},
+    howpublished = {\url{https://www.openexr.com}}
+}
+
+% MaterialX
+@misc{materialx2023,
+    author = {{Lucasfilm Ltd.}},
+    title = {MaterialX},
+    year = {2023},
+    howpublished = {\url{https://materialx.org}}
+}
+
+% Universal Scene Description (USD)
+@misc{usd2023,
+    author = {{Pixar Animation Studios}},
+    title = {Universal Scene Description},
+    year = {2023},
+    howpublished = {\url{https://openusd.org}}
+}
+
+% ========================
+% FIN BIBLIOGRAPHIE
+% ========================

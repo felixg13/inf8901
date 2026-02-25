@@ -1,0 +1,197 @@
+\documentclass[12pt,a4paper,french]{article}
+
+% ======================== PACKAGES ========================
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[french]{babel}
+\usepackage[margin=2.5cm]{geometry}
+
+\usepackage{hyperref}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{enumitem}
+\usepackage[numbers]{natbib}
+\usepackage{amsmath}
+\usepackage{pgfgantt}
+
+\hypersetup{
+    colorlinks=true,
+    linkcolor=black,
+    citecolor=blue,
+    urlcolor=blue
+}
+
+% ======================== DOCUMENT ========================
+
+\begin{document}
+
+\input{titlepage.tex}
+\tableofcontents
+\newpage
+
+% ======================== SECTION 1 ========================
+\section{Introduction}
+
+\subsection{Objectif du projet}
+
+L'objectif de ce projet de recherche est de comparer la technique GPIS, soit Gaussian Process Implicit Surfaces, de Seyb et al. \cite{seyb24from} et le modèle de Marschner \cite{marschner2003} sur plusieurs attributs, afin d'identifier les améliorations nécessaires au modèle GPIS pour obtenir des résultats comparables au modèle de Marschner dans le contexte du rendu de chevelure.
+
+\subsection{Nature de ce document}
+
+Ce document constitue une proposition de projet de recherche qui présente les différentes étapes de réalisation sur une période de 13 semaines. Il a pour but de définir clairement la méthodologie, les livrables attendus et le calendrier de réalisation, permettant ainsi au professeur de suivre l'avancement du projet.
+
+\subsection{Structure du projet}
+
+Le projet consiste en la réalisation de trois livrables principaux :
+
+\textbf{Rapport de recherche.} Rédaction d'un rapport complet structuré selon les sections suivantes :
+\begin{enumerate}[noitemsep]
+    \item \textit{Introduction} : contexte, motivation et objectifs
+    \item \textit{Revue de littérature} : état de l'art sur GPIS et techniques de rendu pour cheveux
+    \item \textit{Présentation de l'implémentation} : architecture logicielle, choix techniques, détails d'implémentation
+    \item \textit{Résultats} : rendus obtenus, métriques de performance, données expérimentales
+    \item \textit{Analyse} : comparaison critique, points forts et faibles, propositions d'amélioration
+    \item \textit{Conclusion} : synthèse des résultats, contributions, perspectives futures
+\end{enumerate}
+
+\textbf{Programme de comparaison.} Développement d'un programme implémentant les deux modèles dans un moteur de rendu, permettant de générer des rendus comparatifs de scènes de chevelure et de collecter des données quantitatives sur les performances et la qualité visuelle.
+
+\textbf{Vidéo de démonstration.} Production d'une courte vidéo présentant des captures du programme, montrant des rendus côte-à-côte générés par chaque modèle, et illustrant visuellement les différences observées.
+
+% ======================== SECTION 2 ========================
+\section{Contexte théorique}
+
+Cette section présente les principaux sujets théoriques qui seront abordés dans le projet, ainsi que les références clés qui justifient les choix méthodologiques.
+
+\subsection{Rendu de chevelure par diffusion lumineuse}
+
+Le modèle de Marschner et al. \cite{marschner2003} constitue la référence standard pour le rendu physiquement réaliste de cheveux depuis plus de deux décennies. Basé sur une analyse de la réflexion de la lumière sur des fibres réelles, ce modèle sera étudié en profondeur pour comprendre les caractéristiques optiques attendues dans un rendu de chevelure de haute qualité. Les extensions récentes de Huang et al. \cite{huang2022microfacet} et Xu et al. \cite{xu2011interactive} seront également analysées pour comprendre les améliorations apportées au modèle original depuis sa conception.
+
+\subsection{Représentation unifiée par surfaces implicites stochastiques}
+
+L'approche GPIS représente un changement de paradigme dans la représentation géométrique en infographie. Les travaux de Martens et al. \cite{martens2016gpis} seront étudiés pour comprendre les fondements mathématiques des processus gaussiens appliqués aux surfaces implicites. L'article principal de Seyb et al. \cite{seyb24from} sera analysé en détail ainsi que le papier suivant de Xu et al. \cite{xu25practical} développé par la même équipe afin d'optimiser la qualité et la vitesse du rendu par GPIS.
+
+\subsection{Transport lumineux dans les milieux corrélés}
+
+La théorie de Davis \& Xu \cite{davis2014generalized} sur les milieux participants corrélés comme la fumée, les nuages mais aussi la chevelure sera essentielle pour comprendre le comportement de la lumière dans les structures organisées comme les chevelures.
+Cette théorie distingue les milieux homogènes des milieux corrélés et explique les différences fondamentales dans le transport de lumière, un aspect crucial pour comparer GPIS et Marschner.
+
+% ======================== SECTION 3 ========================
+\section{Méthodologie}
+
+\subsection{Dimensions d'évaluation}
+
+Lors du développement de techniques de rendu, la qualité visuelle est le critère principal. Des critères concrets seront définis pour observer et qualifier le réalisme du rendu.
+
+Des critères objectifs seront également présentés, tels que le temps par image, la complexité d'implémentation et d'intégration dans les moteurs actuels. Ainsi, il sera possible de présenter les avantages et désavantages de chaque technique.
+
+\subsection{Choix technologiques}
+
+Afin de garantir la performance maximale, les modèles seront implémentés dans un moteur de rendu reconnu. Une évaluation technique des solutions disponibles sera effectuée pour trouver quelle solution est compatible avec le projet.
+
+\textbf{Renderers candidats} : Blender Cycles, Autodesk Arnold, Mitsuba3, Tungsten.
+
+\textbf{Processus de sélection} : Une évaluation comparative sera effectuée lors de la phase d'exploration technologique, soit durant les semaines 3 et 4, selon les critères suivants : accessibilité du code source, facilité d'ajout de shaders personnalisés, documentation, support GPU/CPU, et compatibilité avec les deux modèles à implémenter.
+
+\section{Plan de réalisation (13 semaines)}
+
+La réalisation de ce projet s'étend sur 13 semaines, du 7 janvier au 16 avril, et se structure en quatre phases distinctes, chacune se terminant par des livrables vérifiables.
+Cette organisation permet un suivi et des ajustements en fonction des retours du professeur et des contraintes techniques rencontrées.
+
+\subsection{Phase 1 : Fondations théoriques et validation technologique (Semaines 1-5)}
+
+La première phase établit les fondements théoriques et valide la faisabilité technique du projet. Les trois premières semaines sont consacrées à une analyse approfondie de la littérature : lecture critique des articles fondateurs de Marschner \cite{marschner2003}, Seyb \cite{seyb24from} et Davis-Xu \cite{davis2014generalized}, suivie d'une synthèse systématique des équations mathématiques sous-jacentes.
+Cette étape vise à clarifier les hypothèses physiques de chaque modèle, identifier les approximations effectuées, et établir les correspondances théoriques entre la BSDF de surface de Marschner et le transport volumétrique GPIS.
+
+En parallèle, durant les semaines 3 et 4, une évaluation technologique rigoureuse compare les quatre moteurs de rendu candidats : Blender Cycles, Autodesk Arnold, Mitsuba 3 et Tungsten.
+Cette comparaison porte sur l'accessibilité du code source, la facilité d'ajout de shaders personnalisés, la documentation disponible, et le support GPU/CPU.
+Une preuve de concept minimale, comme un shader implémentant une BSDF simplifiée ou un volume shader basique, est développée dans le moteur sélectionné pour valider que l'architecture choisie permet effectivement d'intégrer les deux modèles.
+L'environnement de développement complet est configuré et testé.
+
+Les semaines 4 et 5 formalisent la méthodologie de comparaison : définition précise des métriques quantitatives, création de trois scènes de test représentatives avec cheveux lisses, ondulés et crépus, le tout avec des paramètres contrôlés.
+Cette phase se conclut par la remise d'un rapport partiel documentant l'analyse théorique et la méthodologie, accompagné de la preuve de concept fonctionnelle démontrant la faisabilité technique.
+
+\subsection{Phase 2 : Implémentation complète des deux modèles (Semaines 6-8)}
+
+La phase d'implémentation débute par le développement du modèle Marschner durant les semaines 6 et 7. L'implémentation GPIS, réalisée durant les semaines 7 et 8, représente un défi technique plus important. Elle nécessite l'implémentation de compute shaders et le développement d'un algorithme de ray marching stochastique.
+
+La semaine 8 marque une étape critique : la collecte des données expérimentales. Les trois scènes de test sont rendues avec chaque modèle,  les métriques de performance sont enregistrées automatiquement, et les images haute résolution sont archivées.
+Une vidéo comparative courte, d'environ 3 à 5 minutes, est produite pour YouTube, montrant des rendus côte-à-côte et illustrant les différences visuelles. Le rapport est mis à jour pour intégrer les retours du professeur sur la version partielle.
+
+\subsection{Phase 3 : Analyse comparative et propositions d'amélioration (Semaines 9-12)}
+
+Une analyse comparative sera réalisée à partir des métriques définies dans la section méthodologie. Les données collectées lors de la phase 2 seront analysées pour identifier les forces et faiblesses de chaque modèle.
+
+Sur la base de cette analyse, des hypothèses d'amélioration du modèle GPIS seront formulées. Les améliorations jugées viables seront implémentées et l'impact sur la qualité visuelle et la performance sera mesuré. Les résultats avant/après permettront de valider ou réfuter chaque hypothèse.
+
+\subsection{Phase 4 : Finalisation et livraison (Semaine 13)}
+
+La dernière semaine assemble le rapport complet : rédaction de l'introduction incluant le contexte, la motivation et les contributions, ainsi que de la conclusion présentant la synthèse, la réponse à la question de recherche et les perspectives futures. Une relecture intégrale sera effectuée pour assurer la cohérence terminologique et structurelle, avec vérification systématique des citations et formatage de la bibliographie. Une vidéo YouTube finale présente les résultats de manière accessible, avec captures comparatives haute qualité. Le code source est nettoyé, documenté et déposé dans un dépôt Git public.
+
+\subsection{Diagramme de Gantt}
+
+\begin{figure}[h]
+\centering
+\begin{ganttchart}[
+    hgrid,
+    vgrid={*6{draw=none}, dotted},
+    x unit=0.65cm,
+    y unit title=0.6cm,
+    y unit chart=0.5cm,
+    title height=1,
+    bar/.append style={fill=blue!50},
+    bar height=0.6,
+    group/.append style={fill=orange!50},
+    milestone/.append style={fill=red!50, shape=diamond},
+    title label font=\small,
+    group label font=\small\bfseries,
+    bar label font=\scriptsize
+]{1}{13}
+    \gantttitle{Semaines}{13} \\
+    \gantttitlelist{1,...,13}{1} \\
+
+    \ganttgroup{Phase 1: Fondations}{1}{5} \\
+    \ganttbar{Analyse théorique}{1}{3} \\
+    \ganttbar{Éval. technologique}{3}{4} \\
+    \ganttbar{Méthodologie}{4}{5} \\
+    \ganttmilestone{Rapport partiel}{5} \\
+
+    \ganttgroup{Phase 2: Implémentation}{6}{8} \\
+    \ganttbar{Marschner BSDF}{6}{7} \\
+    \ganttbar{GPIS volume}{7}{8} \\
+    \ganttbar{Collecte données}{8}{8} \\
+    \ganttmilestone{Données + vidéo}{8} \\
+
+    \ganttgroup{Phase 3: Analyse}{9}{12} \\
+    \ganttbar{Analyse comparative}{9}{10} \\
+    \ganttbar{Améliorations GPIS}{10}{11} \\
+    \ganttbar{Rédaction résultats}{11}{12} \\
+
+    \ganttgroup{Phase 4: Finalisation}{13}{13} \\
+    \ganttbar{Rapport final}{13}{13} \\
+    \ganttmilestone{Livraison complète}{13}
+\end{ganttchart}
+\caption{Planning détaillé sur 13 semaines, du 7 janvier au 16 avril}
+\end{figure}
+
+\begin{table}[h]
+\centering
+\small
+\begin{tabular}{@{}clp{6cm}l@{}}
+\toprule
+\textbf{Semaine} & \textbf{Livrable} & \textbf{Description} & \textbf{Date cible} \\ \midrule
+5 & Rapport partiel & Chapitres théorie + méthodologie + POC & 15 février \\
+8 & Données expérimentales & Rendus, métriques, vidéo YouTube & 15 mars \\
+13 & Rapport complet & Chapitres 1-8 + annexes & 16 avril \\
+13 & Code source & Implémentations Marschner + GPIS & 16 avril \\
+13 & Vidéo finale & Captures comparatives haute qualité & 16 avril \\ \bottomrule
+\end{tabular}
+\caption{Planning des livrables}
+\end{table}
+
+% ======================== BIBLIOGRAPHIE ========================
+\clearpage
+\bibliographystyle{IEEEtran}
+\bibliography{references}
+
+\end{document}
