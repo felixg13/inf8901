@@ -1,28 +1,28 @@
-\subsection{Repr\'esentation d'une sc\`ene}
-La représentation de sc\`ene en rendu fait r\'ef\'erer \`a la mani\`ere dont les environnements 3D et leurs \'el\'ements constitutifs sont organis\'es, stock\'es et d\'ecrits pour \^etre utilis\'es dans les pipelines de rendu. Les formats modernes de description de sc\`ene, tels que Universal Scene Description (USD) et glTF (GL Transmission Format), constituent la base de cette organisation.
+\subsection{Représentation d'une scène}
+La représentation de scène en rendu fait référer à la manière dont les environnements 3D et leurs éléments constitutifs sont organisés, stockés et décrits pour \^etre utilisés dans les pipelines de rendu. Les formats modernes de description de scène, tels que Universal Scene Description (USD) et glTF (GL Transmission Format), constituent la base de cette organisation.
 
-USD, d\'evelopp\'e par Pixar, est conçu pour l’interop\'erabilit\'e entre diff\'erents logiciels 3D, en mettant l’accent sur des descriptions de sc\`ene \'editables destin\'ees aux outils de cr\'eation num\'erique. De son c\^ot\'e, glTF est optimis\'e pour la diffusion de contenu et le rendu final, notamment pour le web et les applications en temps r\'eel. Ces formats encodent diff\'erents types d’actifs, notamment des maillages d’objet, des personnages dot\'es de syst\`emes squelettiques et de cheveux, ainsi que des m\'edias participatifs comme la fum\'ee, le brouillard ou la vapeur.
+USD, développé par Pixar, est conçu pour l’interopérabilité entre différents logiciels 3D, en mettant l’accent sur des descriptions de scène éditables destinées aux outils de création numérique. De son c\^oté, glTF est optimisé pour la diffusion de contenu et le rendu final, notamment pour le web et les applications en temps réel. Ces formats encodent différents types d’actifs, notamment des maillages d’objet, des personnages dotés de systèmes squelettiques et de cheveux, ainsi que des médias participatifs comme la fumée, le brouillard ou la vapeur.
 
-\subsubsection{Diversit\'e des pipelines de rendu}
+\subsubsection{Diversité des pipelines de rendu}
 
-Diff\'erents types d\'el\'ements de la sc\`ene n\'ecessitent des approches de rendu sp\'ecialis\'ees. Par exemple, Blender Cycles utilise un path tracer volum\'etrique pour rendre les milieux participatifs, tout en employant le lancer de rayons standard pour les maillages d'objets. Cette s\'eparation refl\'ete les diff\'erences fondamentales entre l\'interaction de la lumi\`ere avec les surfaces et avec les volumes.
+Différents types déléments de la scène nécessitent des approches de rendu spécialisées. Par exemple, Blender Cycles utilise un path tracer volumétrique pour rendre les milieux participatifs, tout en employant le lancer de rayons standard pour les maillages d'objets. Cette séparation refléte les différences fondamentales entre l\'interaction de la lumière avec les surfaces et avec les volumes.
 
 \subsubsection{Formats d'encodage des actifs}
 
-Le paysage des formats d'encodage des actifs est tr\`es fragment\'e, chaque type d'actif n\'ecessitant sa propre repr\'esentation sp\'ecialis\'ee :
+Le paysage des formats d'encodage des actifs est très fragmenté, chaque type d'actif nécessitant sa propre représentation spécialisée :
 
 \textbf{Maillages}  
-Les maillages de g\'eom\'etrie utilisent g\'en\'eralement des approches similaires au format Wavefront OBJ, qui encode les positions des sommets, les normales, les coordonn\'ees de texture ainsi que les indices de sommets d\'efinissant la topologie des faces triangulaires ou polygonales.
+Les maillages de géométrie utilisent généralement des approches similaires au format Wavefront OBJ, qui encode les positions des sommets, les normales, les coordonnées de texture ainsi que les indices de sommets définissant la topologie des faces triangulaires ou polygonales.
 
 \textbf{Milieux participants (Participating Media)}  
-Les donn\'ees volum\'etriques telles que la fum\'ee, le brouillard, le feu ou les nuages sont couramment stock\'ees \`a l'aide de formats comme OpenVDB, une biblioth\`eque open source initialement d\'evelopp\'ee par DreamWorks Animation pour manipuler des donn\'ees volum\'etriques creuses (sparse). OpenVDB permet un stockage efficace de structures voxelis\'ees pour la fum\'ee, le feu et les simulations de fluides gr\^ace \`a une structure hi\'erarchique clairsem\'ee qui ne conserve que les r\'egions occup\'ees, r\'eduisant drastiquement les besoins m\'emoire comparativement aux grilles volum\'etriques denses.
+Les données volumétriques telles que la fumée, le brouillard, le feu ou les nuages sont couramment stockées à l'aide de formats comme OpenVDB, une bibliothèque open source initialement développée par DreamWorks Animation pour manipuler des données volumétriques creuses (sparse). OpenVDB permet un stockage efficace de structures voxelisées pour la fumée, le feu et les simulations de fluides gr\^ace à une structure hiérarchique clairsemée qui ne conserve que les régions occupées, réduisant drastiquement les besoins mémoire comparativement aux grilles volumétriques denses.
 
-\textbf{Cheveux et fourrure bas\'es sur des brins (Strand-Based Hair and Fur)}  
-Les cheveux et la fourrure posent des d\'efis d'encodage particuliers. Les m\'eches sont g\'en\'eralement repr\'esent\'ees sous forme de courbes, souvent \`a l'aide de splines cubiques de Catmull-Rom ou de courbes de B\'ezier, d\'efinies par des points de contr\^ole d\'ecrivant la trajectoire du brin. Ces repr\'esentations incluent des informations de largeur par sommet le long de la spline afin de capturer l'amincissement progressif du cheveu de la racine vers la pointe. L'encodage doit donc stocker non seulement la courbe centrale, mais \'egalement les param\`etres de largeur permettant au moteur de rendu de reconstruire correctement la nature volum\'etrique du cheveu lors du rendu.
+\textbf{Cheveux et fourrure basés sur des brins (Strand-Based Hair and Fur)}  
+Les cheveux et la fourrure posent des défis d'encodage particuliers. Les méches sont généralement représentées sous forme de courbes, souvent à l'aide de splines cubiques de Catmull-Rom ou de courbes de Bézier, définies par des points de contr\^ole décrivant la trajectoire du brin. Ces représentations incluent des informations de largeur par sommet le long de la spline afin de capturer l'amincissement progressif du cheveu de la racine vers la pointe. L'encodage doit donc stocker non seulement la courbe centrale, mais également les paramètres de largeur permettant au moteur de rendu de reconstruire correctement la nature volumétrique du cheveu lors du rendu.
 
-\subsubsection{Le d\'efi de la fragmentation}
+\subsubsection{Le défi de la fragmentation}
 
-Cette diversit\'e de formats de repr\'esentation implique que les pipelines de rendu doivent prendre en charge plusieurs types d'actifs, chacun poss\'edant des structures m\'emoire, des routines d'intersection et des mod\`eles d'ombrage distincts.
+Cette diversité de formats de représentation implique que les pipelines de rendu doivent prendre en charge plusieurs types d'actifs, chacun possédant des structures mémoire, des routines d'intersection et des modèles d'ombrage distincts.
 
-Une approche unifi\'ee capable de traiter surfaces et volumes avec une repr\'esentation unique pourrait simplifier consid\'erablement les architectures de rendu. Cela constitue une partie de la motivation derri\`ere l'exploration de techniques telles que les GPIS.
+Une approche unifiée capable de traiter surfaces et volumes avec une représentation unique pourrait simplifier considérablement les architectures de rendu. Cela constitue une partie de la motivation derrière l'exploration de techniques telles que les GPIS.
 
