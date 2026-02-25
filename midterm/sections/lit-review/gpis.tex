@@ -2,7 +2,7 @@
 
 Les processus gaussiens (GP) constituent un cadre d'apprentissage automatique qui considère l'ensemble des fonctions possibles pouvant approximer un jeu de données, en assignant une probabilité à chacune d'elles \cite{rasmussen2006gaussian}. L'hypothèse clé est que des points d'entrée similaires doivent produire des sorties similaires, ce qui permet au modèle de fournir à la fois une estimation ponctuelle et un degré d'incertitude pour chaque prédiction.
 
-GPs are defined by two functions:
+Les GP sont définis par deux fonctions :
 
 \begin{enumerate}[noitemsep]
     \item \textbf{La fonction moyenne $\mu(\mathbf{x})$}, qui représente les croyances a priori sur la fonction sous-jacente
@@ -51,10 +51,10 @@ Le conditionnement d'un processus gaussien consiste à incorporer des données o
 f \sim \text{GP}\left(\mu_{|\zeta_m}(\mathbf{x}), k_{|\zeta_m}(\mathbf{x}, \mathbf{y})\right)
 \end{equation}
 
-with:
+avec :
 \begin{align}
 \mu_{|\zeta_m}(\mathbf{x}) &= \mu(\mathbf{x}) + k(\mathbf{x}, \mathbf{C}) k(\mathbf{C}, \mathbf{C})^{-1} (\mathbf{m} - \mu(\mathbf{C})) \\
-\n k_{|\zeta_m}(\mathbf{x}, \mathbf{y}) &= k(\mathbf{x}, \mathbf{y}) - k(\mathbf{x}, \mathbf{C}) k(\mathbf{C}, \mathbf{C})^{-1} k(\mathbf{C}, \mathbf{y})
+ k_{|\zeta_m}(\mathbf{x}, \mathbf{y}) &= k(\mathbf{x}, \mathbf{y}) - k(\mathbf{x}, \mathbf{C}) k(\mathbf{C}, \mathbf{C})^{-1} k(\mathbf{C}, \mathbf{y})
 \end{align}
 
 \subsubsection{Échantillonnage}

@@ -24,7 +24,7 @@ Marschner identifie trois modes principaux d'interaction de la lumière avec un 
     \item \textbf{TRT (Transmission-Reflection-Transmission)} : la lumière pénètre dans la fibre, se réfléchit sur la surface interne opposée, puis ressort, générant le reflet secondaire coloré.
 \end{itemize}
 
-La fonction de diffusion peut s'\'ecrire :
+La fonction de diffusion peut s'écrire :
 
 \begin{equation}
 \begin{aligned}
@@ -34,14 +34,14 @@ S(\theta_i, \theta_r, \phi_i, \phi_r) &= \frac{M_R(\theta_h) N_R(\eta'(\eta, \th
 \end{aligned}
 \end{equation}
 
-o\`u $M$ repr\'esente la fonction de diffusion longitudinale (mod\'elis\'ee par des gaussiennes) et $N$ la fonction de diffusion azimutale. Le mod\`ele utilise des coordonn\'ees sph\'eriques avec $\theta$ pour l'angle longitudinal et $\phi$ pour l'angle azimutal. Plusieurs angles d\'eriv\'es sont employ\'es :
+où $M$ représente la fonction de diffusion longitudinale (modélisée par des gaussiennes) et $N$ la fonction de diffusion azimutale. Le modèle utilise des coordonnées sphériques avec $\theta$ pour l'angle longitudinal et $\phi$ pour l'angle azimutal. Plusieurs angles dérivés sont employés :
 \begin{itemize}
     \item L'angle de diff\'erence : $\theta_d = (\theta_r - \theta_i)/2$
     \item L'azimut relatif : $\phi = \phi_r - \phi_i$
     \item Les demi-angles : $\theta_h = (\theta_i + \theta_r)/2$ et $\phi_h = (\phi_i + \phi_r)/2$
 \end{itemize}
 
-En principe, ce sch\'ema peut \^etre prolong\'e pour des transmissions avec $n$ r\'eflexions internes (TRRT, TRRRT, etc.), mais l'impact visuel des termes d'ordre sup\'erieur au TRT est g\'en\'eralement n\'egligeable.
+En principe, ce schéma peut être prolongé pour des transmissions avec $n$ réflexions internes (TRRT, TRRRT, etc.), mais l'impact visuel des termes d'ordre supérieur au TRT est généralement négligeable.
 
 \subsubsection{Comparaison des mod\`eles de rendu des cheveux}
 
@@ -50,6 +50,6 @@ La figure \ref{fig:hair_comparison} illustre, \`a gauche, des cheveux rendus ave
 \begin{figure}[H]
     \centering
     \includegraphics[width=\textwidth]{img/hair_comparison.png}
-    \caption{Comparaison des mod\`eles de rendu des cheveux : Kajiya-Kay (gauche), Marschner (centre) et cheveux r\'eels (droite) sous un \'eclairage similaire. Image tir\'ee de \textcite{marschner2003}.}
+    \caption{Comparaison des modèles de rendu des cheveux : Kajiya-Kay (gauche), Marschner (centre) et cheveux réels (droite) sous un éclairage similaire. Image tirée de \textcite{marschner2003}.}
     \label{fig:hair_comparison}
 \end{figure}
