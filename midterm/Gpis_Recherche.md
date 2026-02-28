@@ -316,7 +316,7 @@ Mitsuba 3 [12] constitue une option populaire pour la recherche en rendu. Il s�
 
 D’après la page GitHub officielle :
 
-Mitsuba 3 est un système de rendu orienté recherche pour la simulation du transport de la lumière direct et inverse, développé à l’EPFL en Suisse. Il comprend une bibliothèque cœur ainsi qu’un ensemble de plugins implémentant des fonctionnalités allant des matériaux et sources lumineuses aux algorithmes complets de rendu. Mitsuba 3 est retargetable, ce qui signifie que ses implémentations et structures de données peuvent être transformées pour accomplir différentes tâches [12].
+Mitsuba 3 est un système de rendu orienté recherche pour la simulation du transport de la lumière direct et inverse, développé à l’EPFL en Suisse. Il comprend une bibliothèque ainsi qu’un ensemble de plugins implémentant des fonctionnalités allant des matériaux et sources lumineuses aux algorithmes complets de rendu. Mitsuba 3 est retargetable, ce qui signifie que ses implémentations et structures de données peuvent être transformées pour accomplir différentes tâches [12].
 
 ---
 
@@ -356,7 +356,7 @@ Une preuve de concept a été réalisée en ajoutant un plugin **gpis_sphere** �
 
 L’intersection est définie à partir de la moyenne du processus gaussien conditionné. La sphère est placée dans une scène de type Cornell Box via la description XML de Mitsuba, avec des murs définis par des rectangles et un éclairage fourni par une source surfacique.
 
-La scène est rendue en 256 × 256 pixels avec 128 échantillons par pixel, pour un temps de rendu d’environ 30 minutes.
+La scène est rendue en 256 x 256 pixels avec 128 échantillons par pixel, pour un temps de rendu d’environ 30 minutes.
 
 ---
 
@@ -451,6 +451,6 @@ La lecture et la compréhension des articles fondamentaux ont posé d’importan
 
 Le développement de la preuve de concept pour Mitsuba 3 a présenté d’importants défis techniques. L’environnement de compilation s’est révélé particulièrement complexe, nécessitant une correspondance précise des versions de GCC, CMake, Ninja et Embree. De plus, la documentation limitée de l’interface C++ de Mitsuba 3 a exigé une rétro-ingénierie des fonctionnalités des plugins par inspection du code. Enfin, la maîtrise de la syntaxe DrJit utilisée dans l’ensemble du moteur Mitsuba 3 a ajouté un niveau supplémentaire de complexité au processus d’implémentation.
 
-Malgré ces difficultés, ce projet de recherche a été intellectuellement stimulant et professionnellement enrichissant. J’ai acquis une exposition précieuse aux orientations de pointe en recherche en infographie, notamment l’intégration de techniques d’apprentissage automatique pour faire progresser à la fois le photoréalisme et les applications pratiques. Le projet m’a amené à revisiter des concepts fondamentaux des algorithmes de path tracing et des fonctions de diffusion de la lumière, ce qui a renforcé ma compréhension des sujets avancés au cœur de ce travail. Plus important encore, cette expérience a développé ma capacité à aborder des concepts théoriques complexes et à les appliquer à des bases de code de production existantes, une compétence essentielle en recherche et développement en infographie.
+Malgré ces difficultés, ce projet de recherche a été intellectuellement stimulant et professionnellement enrichissant. J’ai acquis une exposition précieuse aux orientations de pointe en recherche en infographie, notamment l’intégration de techniques d’apprentissage automatique pour faire progresser à la fois le photoréalisme et les applications pratiques. Le projet m’a amené à revisiter des concepts fondamentaux des algorithmes de path tracing et des fonctions de diffusion de la lumière, ce qui a renforcé ma compréhension des sujets avancés au coeur de ce travail. Plus important encore, cette expérience a développé ma capacité à aborder des concepts théoriques complexes et à les appliquer à des bases de code de production existantes, une compétence essentielle en recherche et développement en infographie.
 
 Bien que ce projet ait été plus exigeant que prévu, j’anticipe des résultats significatifs de l’intégration de GPIS dans Mitsuba 3. Une part importante de la théorie reste à explorer afin d’accroître la rigueur de la revue de littérature, notamment le modèle de mémoire utilisé pour le transport de la lumière dans [1] ainsi que l’approche plus récente de convolution creuse proposée par Xu et al. [11]. Ces ajouts fourniront une base théorique plus complète pour le travail d’implémentation à venir.

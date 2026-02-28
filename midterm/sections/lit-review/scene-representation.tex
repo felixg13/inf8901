@@ -1,15 +1,15 @@
 \subsection{Représentation d'une scène}
 La représentation de scène en rendu fait référence à la manière dont les environnements 3D et leurs éléments constitutifs sont organisés, stockés et décrits pour être utilisés dans les pipelines de rendu. Les formats modernes de description de scène, tels que Universal Scene Description (USD) et glTF (GL Transmission Format), constituent la base de cette organisation.
 
-USD, d\'evelopp\'e par Pixar, est conçu pour l'interop\'erabilit\'e entre diff\'erents logiciels 3D, en mettant l'accent sur des descriptions de sc\`ene \'editables destin\'ees aux outils de cr\'eation num\'erique. De son c\^ot\'e, glTF est optimis\'e pour la diffusion de contenu et le rendu final, notamment pour le web et les applications en temps r\'eel. Ces formats encodent diff\'erents types d'actifs, notamment des maillages d'objet, des personnages dot\'es de syst\`emes squelettiques et de cheveux, ainsi que des m\'edias participatifs comme la fum\'ee, le brouillard ou la vapeur.
+USD, d\'evelopp\'e par Pixar, est conçu pour l'interop\'erabilit\'e entre diff\'erents logiciels 3D, en mettant l'accent sur des descriptions de sc\`ene \'editables destin\'ees aux outils de cr\'eation num\'erique. De son c\^ot\'e, glTF est optimis\'e pour la diffusion de contenu et le rendu final, notamment pour le web et les applications en temps r\'eel. Ces formats encodent diff\'erents types d'éléments, notamment des maillages d'objet, des personnages dot\'es de syst\`emes squelettiques et de cheveux, ainsi que des m\'edias participatifs comme la fum\'ee, le brouillard ou la vapeur.
 
 \subsubsection{Diversité des pipelines de rendu}
 
-Différents types d'éléments de la scène nécessitent des approches de rendu spécialisées. Par exemple, Blender Cycles utilise un path tracer volumétrique pour rendre les milieux participatifs, tout en employant le lancer de rayons standard pour les maillages d'objets. Cette séparation reflète les différences fondamentales entre l'interaction de la lumière avec les surfaces et avec les volumes.
+Différents types d'éléments de la scène nécessitent des approches de rendu spécialisées. Par exemple, Blender Cycles utilise un tracé de rayon volumétrique pour rendre les milieux participatifs, tout en employant le lancer de rayons standard pour les maillages d'objets. Cette séparation reflète les différences fondamentales entre l'interaction de la lumière avec les surfaces et avec les volumes.
 
-\subsubsection{Formats d'encodage des actifs}
+\subsubsection{Formats d'encodage des éléments de scène}
 
-Le paysage des formats d'encodage des actifs est très fragmenté, chaque type d'actif nécessitant sa propre représentation spécialisée :
+Le paysage des formats d'encodage des éléments est très fragmenté, chaque type d'élément nécessitant sa propre représentation spécialisée :
 
 \textbf{Maillages}  
 Les maillages de géométrie utilisent généralement des approches similaires au format Wavefront OBJ, qui encode les positions des sommets, les normales, les coordonnées de texture ainsi que les indices de sommets définissant la topologie des faces triangulaires ou polygonales.
@@ -22,7 +22,7 @@ Les cheveux et la fourrure posent des défis d'encodage particuliers. Les mèche
 
 \subsubsection{Le d\'efi de la fragmentation}
 
-Cette diversit\'e de formats de repr\'esentation implique que les pipelines de rendu doivent prendre en charge plusieurs types d'actifs, chacun poss\'edant des structures m\'emoire, des routines d'intersection et des mod\`eles d'ombrage distincts.
+Cette diversit\'e de formats de repr\'esentation implique que les pipelines de rendu doivent prendre en charge plusieurs types d'éléments, chacun poss\'edant des structures m\'emoire, des routines d'intersection et des mod\`eles d'ombrage distincts.
 
 Une approche unifi\'ee capable de traiter surfaces et volumes avec une repr\'esentation unique pourrait simplifier consid\'erablement les architectures de rendu. Cela constitue une partie de la motivation derri\`ere l'exploration de techniques telles que les GPIS.
 
