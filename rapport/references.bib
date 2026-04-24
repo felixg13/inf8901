@@ -1,0 +1,269 @@
+% ========================
+% HAIR BSDF
+% ========================
+@inproceedings{deon2011egsr,
+    author    = {d'Eon, Eugene and Fran\c{c}ois, Guillaume and Hill, Martin and Letteri, Joe and Aubry, Jean-Marie},
+    title     = {An energy-conserving hair reflectance model},
+    booktitle = {Proceedings of the Eurographics Symposium on Rendering (EGSR '11)},
+    year      = {2011},
+    pages     = {1181--1187},
+    publisher = {Eurographics Association}
+}
+
+% ========================
+% MIS / NEE
+% ========================
+@article{veach1995mis,
+    author  = {Veach, Eric and Guibas, Leonidas J.},
+    title   = {Optimally Combining Sampling Techniques for {Monte Carlo} Rendering},
+    journal = {Proceedings of SIGGRAPH},
+    year    = {1995},
+    pages   = {419--428},
+    doi     = {10.1145/218380.218498}
+}
+
+@phdthesis{veach1997thesis,
+    author = {Veach, Eric},
+    title  = {Robust {Monte Carlo} Methods for Light Transport Simulation},
+    school = {Stanford University},
+    year   = {1997}
+}
+
+% ========================
+% BVH / EMBREE
+% ========================
+@inproceedings{wald2014embree,
+    author    = {Wald, Ingo and Woop, Sven and Benthin, Carsten and Johnson, Gregory S. and Ernst, Manfred},
+    title     = {Embree: A Kernel Framework for Efficient {CPU} Ray Tracing},
+    booktitle = {ACM Transactions on Graphics (Proceedings of SIGGRAPH)},
+    year      = {2014},
+    volume    = {33},
+    number    = {4},
+    pages     = {143:1--143:8},
+    doi       = {10.1145/2601097.2601199}
+}
+
+@article{karras2012bvh,
+    author  = {Karras, Tero},
+    title   = {Maximizing Parallelism in the Construction of {BVH}s, Octrees, and $k$-d Trees},
+    journal = {Proceedings of the Fourth ACM SIGGRAPH / Eurographics Conference on High-Performance Graphics},
+    year    = {2012},
+    pages   = {33--37},
+    doi     = {10.2312/EGGH/HPG12/033-037}
+}
+
+% ========================
+% SDF
+% ========================
+@misc{quilez_sdf,
+    author       = {Quílez, Iñigo},
+    title        = {Distance Functions},
+    year         = {2023},
+    howpublished = {\url{https://iquilezles.org/articles/distfunctions/}},
+    note         = {Consulté le \today}
+}
+
+% ========================
+% HAIR
+% ========================
+@article{marschner2003,
+    author = {Marschner, Stephen R. and Jensen, Henrik Wann and Cammarano, Mike and Worley, Steve and Hanrahan, Pat},
+    title = {Light Scattering from Human Hair Fibers},
+    year = {2003},
+    issue_date = {July 2003},
+    publisher = {Association for Computing Machinery},
+    address = {New York, NY, USA},
+    volume = {22},
+    number = {3},
+    issn = {0730-0301},
+    url = {https://doi.org/10.1145/882262.882345},
+    doi = {10.1145/882262.882345},
+    journal = {ACM Transactions on Graphics},
+    month = jul,
+    pages = {780--791},
+    numpages = {12},
+    keywords = {rendering, optical scattering, hair, fibers},
+    abstract = {Light scattering from hair is normally simulated in computer graphics using Kajiya and Kay's classic phenomenological model. We have made new measurements of scattering from individual hair fibers that exhibit visually significant effects not predicted by Kajiya and Kay's model. Our measurements go beyond previous hair measurements by examining out-of-plane scattering, and together with this previous work they show a multiple specular highlight and variation in scattering with rotation about the fiber axis. We explain the sources of these effects using a model of a hair fiber as a transparent elliptical cylinder with an absorbing interior and a surface covered with tilted scales. Based on an analytical scattering function for a circular cylinder, we propose a practical shading model for hair that qualitatively matches the scattering behavior shown in the measurements. In a comparison between a photograph and rendered images, we demonstrate the new model's ability to match the appearance of real hair.}
+}
+
+@inproceedings{kajiya1989rendering,
+    author = {Kajiya, James T. and Kay, Timothy L.},
+    title = {Rendering Fur with Three Dimensional Textures},
+    booktitle = {Proceedings of the 16th Annual Conference on Computer Graphics and Interactive Techniques},
+    series = {SIGGRAPH '89},
+    year = {1989},
+    pages = {271--280},
+    doi = {10.1145/74333.74361},
+    publisher = {ACM},
+    address = {New York, NY, USA}
+}
+
+@article{chiang2016,
+    author = {Chiang, Matt Jen-Yuan and Bitterli, Benedikt and Tappan, Chuck and Burley, Brent},
+    title = {A Practical and Controllable Hair and Fur Model for Production Path Tracing},
+    journal = {Computer Graphics Forum},
+    volume = {35},
+    number = {2},
+    pages = {275-283},
+    keywords = {Categories and Subject Descriptors (according to ACM CCS), Computer Graphics I.3.7: Three-Dimensional Graphics and Realism—Shading},
+    doi = {https://doi.org/10.1111/cgf.12830},
+    url = {https://onlinelibrary.wiley.com/doi/abs/10.1111/cgf.12830},
+    eprint = {https://onlinelibrary.wiley.com/doi/pdf/10.1111/cgf.12830},
+    abstract = {Abstract We present an energy-conserving fiber shading model for hair and fur that is efficient enough for path tracing. Our model adopts a near-field formulation to avoid the expensive integral across the fiber, accounts for all high order internal reflection events with a single lobe, and proposes a novel, closed-form distribution for azimuthal roughness based on the logistic distribution. Additionally, we derive, through simulation, a parameterization that relates intuitive user controls such as multiple-scattering albedo and isotropic cylinder roughness to the underlying physical parameters.},
+    year = {2016}
+}
+
+@article{xu2011interactive,
+    title = {Interactive Hair Rendering and Appearance Editing under Environment Lighting},
+    author = {Xu, Kun and Ma, Li-Qian and Ren, Bo and Wang, Rui and Hu, Shimin},
+    journal = {ACM Transactions on Graphics (Proceedings of SIGGRAPH Asia)},
+    year = {2011},
+    volume = {30},
+    number = {6},
+    pages = {173:1--173:10},
+    doi = {10.1145/2024156.2024207},
+    abstract = {Derives a compact 1D circular Gaussian approximation of the Marschner scattering function, enabling closed-form integration with spherical radial basis function environment lights and real-time editing of Marschner parameters with both single and multiple scattering}
+}
+
+
+
+% ========================
+% GPIS
+% ========================
+
+@article{seyb24from,
+    author = {Seyb, Dario and d'Eon, Eugene and Bitterli, Benedikt and Jarosz, Wojciech},
+    title = {From Microfacets to Participating Media: A Unified Theory of Light Transport with Stochastic Geometry},
+    journal = {ACM Transactions on Graphics (Proceedings of SIGGRAPH)},
+    year = {2024},
+    month = jul,
+    volume = {43},
+    number = {4},
+    doi = {10/gt5nh9},
+    keywords = {volumetric light transport, stochastic processes, implicit surfaces},
+    abstract = {This paper presents a unified theory of light transport based on stochastic geometry, enabling representation of both microfacets (rough surfaces) and participating media (volumes) within a single mathematical framework using Gaussian Process Implicit Surfaces (GPIS).}
+}
+
+@article{xu25practical,
+    author = {Xu, Kehan and Bitterli, Benedikt and d'Eon, Eugene and Jarosz, Wojciech},
+    title = {Practical {G}aussian Process Implicit Surfaces with Sparse Convolutions},
+    journal = {ACM Transactions on Graphics (Proceedings of SIGGRAPH Asia)},
+    year = {2025},
+    month = dec,
+    volume = {44},
+    number = {6},
+    doi = {10.1145/3763329},
+    abstract = {Cette article publié en 2025 propose des améliorations pratiques face à la technique de Seyb et al., incluant des optimisations computationnelles avec convolutions creuses pour rendre les GPIS utilisables en production.}
+}
+
+% ========================
+% FONDEMENTS GPIS
+% ========================
+
+@book{rasmussen2006gaussian,
+    author = {Rasmussen, Carl Edward and Williams, Christopher K. I.},
+    title = {Gaussian Processes for Machine Learning},
+    publisher = {MIT Press},
+    year = {2006},
+    isbn = {978-0-262-18253-9},
+    url = {http://www.gaussianprocess.org/gpml/}
+}
+
+@inproceedings{williams2007gaussian,
+    author = {Williams, Oliver and Fitzgibbon, Andrew},
+    title = {Gaussian Process Implicit Surfaces},
+    booktitle = {Gaussian Processes in Practice},
+    year = {2007},
+    month = {April},
+    abstract = {Many applications in computer vision and computer graphics require the definition of curves and surfaces. Implicit surfaces are a popular choice for this because they are smooth, can be appropriately constrained by known geometry, and require no special treatment for topology changes. In this paper we introduce Gaussian processes to this area by deriving a covariance function equivalent to the thin plate spline regularizer.},
+    url = {https://www.microsoft.com/en-us/research/publication/gaussian-process-implicit-surfaces-2/},
+    edition = {Gaussian Processes in Practice},
+}
+
+@article{martens2016gpis,
+    author = {Martens, Wolfram and Poffet, Yannick and Ramon, Pablo and Fitch, Robert and Sukkarieh, Salah},
+    year = {2016},
+    month = nov,
+    pages = {1--8},
+    title = {Geometric Priors for Gaussian Process Implicit Surfaces},
+    volume = {2},
+    number = {1},
+    journal = {IEEE Robotics and Automation Letters},
+    doi = {10.1109/LRA.2016.2631260},
+    abstract = {Cette article explique les travaux précédents qui ont été faits pour représenter des géométries 3D à l'aide de processus gaussiens.}
+}
+
+% ========================
+% RÉFÉRENCES ADDITIONNELLES
+% ========================
+@article{kajiya1986rendering,
+    author = {Kajiya, James T.},
+    title = {The Rendering Equation},
+    journal = {Computer Graphics (Proceedings of SIGGRAPH)},
+    volume = {20},
+    number = {4},
+    year = {1986},
+    pages = {143--150},
+    doi = {10.1145/15886.15902}
+}
+
+% ========================
+% SOFTWARE
+% ========================
+@software{Mitsuba3,
+    title = {Mitsuba 3 renderer},
+    author = {Wenzel Jakob and Sébastien Speierer and Nicolas Roussel and Merlin Nimier-David and Delio Vicini and Tizian Zeltner and Baptiste Nicolet and Miguel Crespo and Vincent Leroy and Ziyi Zhang},
+    note = {https://mitsuba-renderer.org},
+    version = {3.7.1},
+    year = 2025
+}
+
+@software{Tungsten,
+  title = {Tungsten Renderer},
+  author = {Bitterli, Benedikt},
+  year = {2025},
+  url = {https://github.com/tunabrain/tungsten/}
+}
+
+@software{Blender,
+   title = {Blender - a 3D modelling and rendering package},
+   author = {Blender Online Community},
+   organization = {Blender Foundation},
+   address = {Stichting Blender Foundation, Amsterdam},
+   year = {2018},
+   url = {http://www.blender.org},
+ }
+
+@software{Arnold,
+    title = {Arnold Renderer},
+    author = {{Autodesk, Inc.}},
+    year = {2024},
+    note = {https://www.arnoldrenderer.com},
+    version = {7.3},
+}
+
+@article{lewis1986methods,
+  author    = {J. P. Lewis},
+  title     = {Methods for Stochastic Spectral Synthesis},
+  booktitle = {Proceedings of Graphics Interface},
+  year      = {1986},
+  pages     = {173--179}
+}
+
+@article{lewis1989algorithms,
+  author    = {J. P. Lewis},
+  title     = {Algorithms for Solid Noise Synthesis},
+  journal   = {ACM SIGGRAPH Computer Graphics},
+  volume    = {23},
+  number    = {3},
+  pages     = {263--270},
+  year      = {1989}
+}
+
+@book{kallenberg1997foundations,
+  author    = {Olav Kallenberg},
+  title     = {Foundations of Modern Probability},
+  publisher = {Springer},
+  address   = {New York},
+  year      = {1997}
+}

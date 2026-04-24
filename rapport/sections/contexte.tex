@@ -1,0 +1,475 @@
+\section{Contexte}
+\label{sec:contexte}
+
+\subsection{Représentation d'une scène}
+La représentation de scène en rendu fait référence à la manière dont les environnements 3D et leurs éléments constitutifs sont organisés, stockés et décrits pour être utilisés dans les pipelines de rendu. Les formats modernes de description de scène, tels que Universal Scene Description (USD) et glTF (GL Transmission Format), constituent la base de cette organisation.
+
+USD, d\'evelopp\'e par Pixar, est conçu pour l'interop\'erabilit\'e entre diff\'erents logiciels 3D, en mettant l'accent sur des descriptions de sc\`ene \'editables destin\'ees aux outils de cr\'eation num\'erique. De son c\^ot\'e, glTF est optimis\'e pour la diffusion de contenu et le rendu final, notamment pour le web et les applications en temps r\'eel. Ces formats encodent diff\'erents types d'éléments, notamment des maillages d'objet, des personnages dot\'es de syst\`emes squelettiques et de cheveux, ainsi que des m\'edias participatifs comme la fum\'ee, le brouillard ou la vapeur.
+
+\subsubsection{Diversité des pipelines de rendu}
+
+Différents types d'éléments de la scène nécessitent des approches de rendu spécialisées. Par exemple, Blender Cycles utilise un tracé de rayon volumétrique pour rendre les milieux participatifs, tout en employant le lancer de rayons standard pour les maillages d'objets. Cette séparation reflète les différences fondamentales entre l'interaction de la lumière avec les surfaces et avec les volumes.
+
+\subsubsection{Formats d'encodage des éléments de scène}
+
+Le paysage des formats d'encodage des éléments est très fragmenté, chaque type d'élément nécessitant sa propre représentation spécialisée :
+
+\textbf{Maillages}
+Les maillages de géométrie utilisent généralement des approches similaires au format Wavefront OBJ, qui encode les positions des sommets, les normales, les coordonnées de texture ainsi que les indices de sommets définissant la topologie des faces triangulaires ou polygonales.
+
+\textbf{Milieux participants (Participating Media)}
+Les données volumétriques telles que la fumée, le brouillard, le feu ou les nuages sont couramment stockées à l'aide de formats comme OpenVDB, une bibliothèque open source initialement développée par DreamWorks Animation pour manipuler des données volumétriques creuses (sparse). OpenVDB permet un stockage efficace de structures voxelisées pour la fumée, le feu et les simulations de fluides grâce à une structure hiérarchique clairsemée qui ne conserve que les régions occupées, réduisant drastiquement les besoins mémoire comparativement aux grilles volumétriques denses.
+
+\textbf{Cheveux et fourrure basés sur des brins (Strand-Based Hair and Fur)}
+Les cheveux et la fourrure posent des défis d'encodage particuliers. Les mèches sont généralement représentées sous forme de courbes, souvent à l'aide de splines cubiques de Catmull-Rom ou de courbes de Bézier, définies par des points de contrôle décrivant la trajectoire du brin. Ces représentations incluent des informations de largeur par sommet le long de la spline afin de capturer l'amincissement progressif du cheveu de la racine vers la pointe. L'encodage doit donc stocker non seulement la courbe centrale, mais également les paramètres de largeur permettant au moteur de rendu de reconstruire correctement la nature volumétrique du cheveu lors du rendu.
+
+\subsubsection{Le d\'efi de la fragmentation}
+
+Cette diversit\'e de formats de repr\'esentation implique que les pipelines de rendu doivent prendre en charge plusieurs types d'éléments, chacun poss\'edant des structures m\'emoire, des routines d'intersection et des mod\`eles d'ombrage distincts.
+
+Une approche unifi\'ee capable de traiter surfaces et volumes avec une repr\'esentation unique pourrait simplifier consid\'erablement les architectures de rendu. Cela constitue une partie de la motivation derri\`ere l'exploration de techniques telles que les GPIS.
+
+\subsection{Cheveux}
+
+\subsubsection{État de l'art du rendu des cheveux}
+
+Les cheveux et la fourrure sont omniprésents dans les médias rendus, des jeux vidéo aux personnages de films d'animation. Encore aujourd'hui, le rendu réaliste des fibres demeure un défi, tant en raison de leur complexité géométrique que de la diffusion lumineuse complexe d'une fibre à l'autre. La plupart des techniques modernes trouvent leur origine soit dans l'approche des \textit{hair cards} proposée par Kajiya et Kay \cite{kajiya1989rendering}, soit dans le paradigme de diffusion par fibres introduit par Marschner et al. \cite{marschner2003}. Récemment, la recherche s'est concentrée sur la formulation de modèles de diffusion compatibles avec les traceurs de chemin Monte Carlo; par exemple, Chiang et al. \cite{chiang2016} ont développé un modèle pratique pour les artistes, désormais largement adopté comme modèle de shading des cheveux dans des outils tels que Houdini et Mitsuba 3.
+
+\paragraph{Modèle de Kajiya et Kay}
+
+Le modèle de Kajiya et Kay (1989)~\cite{kajiya1989rendering} repose sur une représentation polygonale des cheveux, ce qui lui permet de s'intégrer facilement aux pipelines de rendu rasterisés. L'approche modélise les cheveux comme des fibres cylindriques et utilise un modèle d'ombrage anisotrope prenant en compte la direction tangente du brin.
+
+Le modèle capture la caractéristique la plus visible de la diffusion par fibres : l'apparition d'un reflet linéaire perpendiculaire à la direction des fibres dans l'image. Cette observation repose sur le fait que la réflexion d'un faisceau parallèle sur la surface d'un cylindre produit un cône centré sur l'axe du cheveu. Le modèle combine un terme diffus (proportionnel au cosinus de l'angle d'incidence) avec un reflet spéculaire centré sur ce cône.
+
+Cependant, le modèle de Kajiya et Kay présente des limites importantes : il traite les cheveux comme des cylindres opaques et ne tient pas compte de la transmission ni des réflexions internes. Or, le cheveu étant un matériau diélectrique et parfois translucide, cette omission conduit à un rendu moins réaliste, incapable de reproduire correctement les reflets colorés et les effets de rétroéclairage.
+
+\paragraph{Modèle de Marschner}
+
+Le modèle de Marschner (2003)~\cite{marschner2003} constitue une avancée majeure par rapport à Kajiya et Kay en proposant une modélisation plus réaliste des fibres. Le modèle considère les cheveux comme des cylindres diélectriques rugueux, permettant de simuler correctement la réflexion interne et la transmission.
+
+Marschner identifie trois modes principaux d'interaction de la lumière avec un cheveu :
+
+\begin{itemize}[noitemsep]
+    \item \textbf{R (Reflection)} : la lumière se réfléchit sur la surface externe de la fibre, produisant le reflet blanc principal.
+    \item \textbf{TT (Transmission-Transmission)} : la lumière pénètre dans la fibre, traverse son intérieur et ressort de l'autre côté, produisant une diffusion vers l'avant visible en contre-jour.
+    \item \textbf{TRT (Transmission-Reflection-Transmission)} : la lumière pénètre dans la fibre, se réfléchit sur la surface interne opposée, puis ressort, générant le reflet secondaire coloré.
+\end{itemize}
+
+La fonction de diffusion peut s'écrire :
+
+\begin{equation}
+\begin{aligned}
+S(\theta_i, \theta_r, \phi_i, \phi_r) &= \frac{M_R(\theta_h) N_R(\eta'(\eta, \theta_d), \phi)}{\cos^2(\theta_d)} \\
+&+ \frac{M_{TT}(\theta_h) N_{TT}(\eta'(\eta, \theta_d), \phi)}{\cos^2(\theta_d)} \\
+&+ \frac{M_{TRT}(\theta_h) N_{TRT}(\eta^*(\phi_h, \theta_d), \phi)}{\cos^2(\theta_d)}
+\end{aligned}
+\end{equation}
+
+où $M$ représente la fonction de diffusion longitudinale (modélisée par des gaussiennes) et $N$ la fonction de diffusion azimutale. Le modèle utilise des coordonnées sphériques avec $\theta$ pour l'angle longitudinal et $\phi$ pour l'angle azimutal. Plusieurs angles dérivés sont employés :
+\begin{itemize}
+    \item L'angle de diff\'erence : $\theta_d = (\theta_r - \theta_i)/2$
+    \item L'azimut relatif : $\phi = \phi_r - \phi_i$
+    \item Les demi-angles : $\theta_h = (\theta_i + \theta_r)/2$ et $\phi_h = (\phi_i + \phi_r)/2$
+\end{itemize}
+
+En principe, ce schéma peut être prolongé pour des transmissions avec $n$ réflexions internes (TRRT, TRRRT, etc.), mais l'impact visuel des termes d'ordre supérieur au TRT est généralement négligeable.
+
+\paragraph{Modèle de d'Eon et al.}
+
+Depuis la publication du modèle de Marschner, plusieurs travaux ont cherché à l'améliorer. Le plus important est celui de \textcite{deon2011egsr}, qui introduit la conservation de l'énergie. En effet, le modèle de Marschner ne garantit pas que la quantité totale de lumière diffusée soit inférieure ou égale à la quantité incidente : dans certaines configurations d'éclairage, il peut émettre plus de lumière qu'il n'en reçoit, ce qui produit des artefacts de sur-luminosité dans les scènes à forte densité de fibres. D'Eon et al. résolvent ce problème en reformulant les facteurs de normalisation des fonctions de diffusion azimutale pour les modes R, TT et TRT, de sorte que leur somme respecte le bilan énergétique. Ce modèle est désormais la référence dans les moteurs de production tels que Mitsuba~3, et c'est celui que nous utiliserons dans notre implémentation.
+
+\subsubsection{Comparaison des mod\`eles de rendu des cheveux}
+
+La figure \ref{fig:hair_comparison} illustre, \`a gauche, des cheveux rendus avec le mod\`ele de Kajiya-Kay, au centre avec le mod\`ele de Marschner, et \`a droite des cheveux r\'eels sous des conditions d'\'eclairage similaires. On observe clairement que le mod\`ele de Marschner permet une meilleure reproduction des reflets secondaires color\'es et offre un aspect moins plat que le mod\`ele de Kajiya-Kay, bien qu'il conserve une certaine uniformit\'e et ne capture pas encore parfaitement la richesse visuelle des cheveux r\'eels.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{img/hair_comparison.png}
+    \caption{Comparaison des modèles de rendu des cheveux : Kajiya-Kay (gauche), Marschner (centre) et cheveux réels (droite) sous un éclairage similaire. Image tirée de \textcite{marschner2003}.}
+    \label{fig:hair_comparison}
+\end{figure}
+
+\subsection{Processus gaussiens}
+
+Les processus gaussiens (GP) constituent un cadre d'apprentissage automatique qui considère l'ensemble des fonctions possibles pouvant approximer un jeu de données, en assignant une probabilité à chacune d'elles \cite{rasmussen2006gaussian}. L'hypothèse clé est que des points d'entrée similaires doivent produire des sorties similaires, ce qui permet au modèle de fournir à la fois une estimation ponctuelle et un degré d'incertitude pour chaque prédiction.
+
+Les GP sont définis par deux fonctions :
+
+\begin{enumerate}[noitemsep]
+    \item \textbf{La fonction moyenne $\mu(\mathbf{x})$}, qui représente les croyances a priori sur la fonction sous-jacente
+    \item \textbf{Le noyau de covariance $k(\mathbf{x}, \mathbf{x}')$}, qui représente la corrélation entre deux points
+\end{enumerate}
+
+Les GP fournissent une moyenne postérieure représentant la valeur prédite ainsi qu'une variance exprimant l'incertitude associée.
+
+\subsubsection{Noyaux}
+La fonction noyau est utilisée pour définir la matrice de covariance en encodant la corrélation entre deux points. Le choix du noyau est crucial en modélisation par GP, car il incorpore des hypothèses sur la régularité, la périodicité et d'autres propriétés de la fonction sous-jacente \cite{martens2016gpis}.
+
+\paragraph{Noyau exponentiel quadratique (RBF)}
+
+Le noyau exponentiel quadratique (ou noyau RBF) est défini par :
+
+\begin{equation}
+k_{SE}(\mathbf{x}, \mathbf{x}') = \sigma^2 \exp \left(- \frac{1}{2\ell^2} \|\mathbf{x} - \mathbf{x}'\|^2 \right)
+\end{equation}
+
+où $\sigma^2$ est la variance du signal et $\ell$ le paramètre d'échelle.
+
+Ce noyau est particulièrement pertinent pour les GPIS, car il produit des surfaces infiniment différentiables et donc très lisses. Le paramètre d'échelle $\ell$ offre un contrôle intuitif sur les caractéristiques de la surface : des valeurs faibles produisent des variations rapides entre les points, tandis que des valeurs plus grandes imposent des transitions plus douces. Cette interprétabilité et cette flexibilité en font un choix adapté à la représentation d'objets naturels aux frontières continues et régulières.
+
+Les équations des noyaux sont tirées de \textcite{martens2016gpis}.
+
+\paragraph{Noyau Thin Plate Spline}
+
+Dans le cas tridimensionnel, le noyau \textit{thin plate spline} est donné par :
+
+\begin{equation}
+k_{TP}(\mathbf{x}, \mathbf{x}') = 2d^3 - 3R d^2 + R^3
+\end{equation}
+
+\noindent o\`u :
+
+\begin{itemize}[noitemsep]
+    \item $d = \|\mathbf{x} - \mathbf{x}'\|^2$,
+    \item $R$ est un hyperparamètre définissant le rayon de support.
+\end{itemize}
+
+Ce noyau est motivé par la minimisation de l'énergie de flexion, analogue à la déformation d'une plaque mince. Pour les GPIS, cette propriété est avantageuse, car elle génère naturellement des surfaces à courbure minimale, produisant des interpolations lisses entre des points de données clairsemés. Toutefois, contrairement au noyau exponentiel quadratique, son efficacité est limitée à un domaine fini défini par $R$, et il offre moins de flexibilité pour ajuster les propriétés de la surface.
+
+\subsubsection{Conditionnement}
+Le conditionnement d'un processus gaussien consiste à incorporer des données observées afin d'affiner les prédictions. Les équations de conditionnement et d'échantillonnage sont dérivées dans \textcite{martens2016gpis} et \textcite{seyb24from}; nous adoptons la notation de \textcite{seyb24from} qui est plus explicite. Étant donné des mesures $\mathbf{m}$ aux positions $\mathbf{C}$, le processus gaussien conditionné s'écrit :
+\begin{equation}
+f \sim \text{GP}\left(\mu_{|\zeta_m}(\mathbf{x}), k_{|\zeta_m}(\mathbf{x}, \mathbf{y})\right)
+\end{equation}
+
+avec :
+\begin{align}
+\mu_{|\zeta_m}(\mathbf{x}) &= \mu(\mathbf{x}) + k(\mathbf{x}, \mathbf{C}) k(\mathbf{C}, \mathbf{C})^{-1} (\mathbf{m} - \mu(\mathbf{C})) \\
+ k_{|\zeta_m}(\mathbf{x}, \mathbf{y}) &= k(\mathbf{x}, \mathbf{y}) - k(\mathbf{x}, \mathbf{C}) k(\mathbf{C}, \mathbf{C})^{-1} k(\mathbf{C}, \mathbf{y})
+\end{align}
+
+\subsubsection{Échantillonnage}
+
+L'échantillonnage d'un processus gaussien peut être réalisé via :
+
+\begin{equation}
+f(\mathbf{X}) = \mu(\mathbf{X}) + k(\mathbf{X}, \mathbf{X})^{1/2} \boldsymbol{\eta}
+\end{equation}
+
+où :
+\begin{itemize}[noitemsep]
+    \item $\boldsymbol{\eta} \sim \mathcal{N}(0,1)$
+    \item $\mathbf{A}^{1/2}$ est la racine carrée matricielle telle que $\mathbf{A} = \mathbf{A}^{1/2}\mathbf{A}^{1/2}$
+\end{itemize}
+
+\subsection{Surfaces implicites et fonctions de distance signée (SDF)}
+
+Une surface implicite est définie par une fonction $f(\mathbf{x})$, où la surface correspond à l'ensemble des points tels que $f = 0$. Par convention, les points où $f > 0$ sont considérés comme étant à l'intérieur d'un objet et ceux où $f < 0$ à l'extérieur, bien que cette convention puisse être inversée. Les plus connu d'entre elle sont les fonction de disante signée.
+
+\subsubsection{Fonction de distance signée (SDF)}
+
+Les fonctions de distance signée (SDF) sont bien étudiées, car elles permettent de faire du rendu procédural avec le tracé de rayon. L'idée est plutôt simple : on cherche à définir une forme par l'expression de la distance au point le plus proche sur la surface à partir d'un point sur le rayon.
+
+L'exemple trivial est celui d'une sphère, dont la surface est obtenue avec la formule :
+\begin{equation}
+d = |\mathbf{p} - \mathbf{c}| - r
+\end{equation}
+soit la distance entre le centre $\mathbf{c}$ et le point sur le rayon $\mathbf{p}$, moins le rayon de la sphère $r$. Une multitude de fonctions ont été présentées par Iñigo Quílez pour des formes 2D et 3D \cite{quilez_sdf}.
+
+Les SDF peuvent être utilisées comme surfaces implicites lorsque la distance signée est égale à zéro, ce qui indique que le point se trouve sur la surface de l'objet.
+
+\paragraph{Sphere tracing}
+
+Une propriété intéressante des SDF est que traverser une scène constituée d'objets SDF peut être réalisé efficacement avec le \textit{sphere tracing}. L'algorithme avance le long du rayon d'un pas égal à la distance minimale obtenue après l'évaluation de toutes les SDF de la scène. Puisque chaque SDF peut être évaluée en $O(1)$, on évalue toutes les distances en $O(n)$ pour $n$ objets dans la scène.
+
+\paragraph{SDF de la capsule}
+
+La SDF importante pour ce projet est celle de la capsule. Une capsule est un segment de droite avec un rayon, analogue à un cylindre à extrémités hémisphériques. Elle est définie par deux points $\mathbf{a}$ et $\mathbf{b}$ et un rayon $r$ :
+
+\begin{lstlisting}[language=C, caption={SDF d'une capsule, tirée de \cite{quilez_sdf}.}]
+float sdCapsule(vec3 p, vec3 a, vec3 b, float r) {
+    vec3 pa = p - a;
+    vec3 ba = b - a;
+    float h = clamp(dot(pa, ba) / dot(ba, ba), 0.0, 1.0);
+    return length(pa - ba * h) - r;
+}
+\end{lstlisting}
+
+En projetant le vecteur $\mathbf{pa} = \mathbf{p} - \mathbf{a}$ sur le vecteur $\mathbf{ba} = \mathbf{b} - \mathbf{a}$, on obtient le paramètre $h \in [0, 1]$ représentant la position du point le plus proche sur le segment. La distance entre ce point et $\mathbf{p}$, diminuée du rayon, correspond à la distance signée vers la capsule. Cet algorithme est identique en 2D et en 3D.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.7\textwidth]{figures/capsule-sdf.png}
+    \caption{Démonstration visuelle de la fonction de distance signée de la capsule.}
+    \label{fig:capsule_sdf}
+\end{figure}
+
+Un autre type de surface implicite sont les surfaces implicites définies par processus de Gauss.
+
+\subsection{Surfaces implicites par processus gaussiens (GPIS)}
+
+Les surfaces implicites définies par processus gaussiens (GPIS) ont été introduites par \textcite{williams2007gaussian} comme une approche probabiliste de reconstruction de surface~\cite{martens2016gpis}.
+
+Les données d'entraînement d'un GPIS comprennent :
+
+\begin{itemize}[noitemsep]
+    \item Un ensemble de points sur la surface (où $f = 0$)
+    \item Un ensemble de points connus à l'intérieur de la surface (où $f > 0$)
+    \item Un ensemble de points connus à l'extérieur de la surface (où $f < 0$)
+\end{itemize}
+
+Si des normales associées aux points sont disponibles, on peut générer automatiquement des points intérieur/extérieur en décalant légèrement le long et contre la normale.
+
+Le processus gaussien apprend une fonction qui interpole de manière lisse toutes les observations. La moyenne du GP représente la fonction implicite la plus probable, tandis que la variance fournit des estimations d'incertitude. La surface implicite correspond à l'ensemble des points où $f(X) = 0$.
+
+\subsubsection{Représentation d'élément par processus gaussiens}
+
+Les GPIS sont particulièrement intéressants pour représenter des formes numérisées à partir de données LiDAR ou de caméras RGB-D. À partir d'un nuage de points, il est possible de conditionner le processus gaussien en définissant les points du nuage comme observations (avec $f = 0$). Cela crée une variété qui peut être rendue à l'aide d'algorithmes de \textit{ray marching} par recherche de racines, afin de déterminer l'intersection avec la variété définie par $f(X) = 0$.
+
+Pour les assets basés sur des maillages, il est possible de conditionner le GP en :
+
+\begin{enumerate}[noitemsep]
+    \item Ajoutant chaque sommet du maillage comme observation de surface ($f = 0$)
+    \item Exploitant les normales aux sommets pour inclure des points à l'extérieur du modèle ($f = -1$) et à l'intérieur ($f = +1$) en décalant dans la direction de la normale
+\end{enumerate}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\textwidth]{img/gpis.png}
+    \caption{Le Stanford bunny défini par 800 points de surface, un point intérieur $+1$, et une sphère de 80 points extérieurs $-1$ générés par l'algorithme marching cubes. Image tirée de \textcite{williams2007gaussian}.}
+    \label{fig:gpis_surfaces}
+\end{figure}
+
+Pour les nuages de points issus de scans LiDAR, les normales ainsi que les points intérieurs et extérieurs doivent être déduits de la géométrie locale. Cela peut être réalisé en estimant les normales de surface à partir du gradient du processus gaussien. \cite{martens2016gpis}
+
+Le GP conditionné définit une surface implicite qui interpole de manière lisse les données observées tout en fournissant des estimations d'incertitude loin des observations. Cette représentation probabiliste est particulièrement utile pour traiter des données capteurs bruitées et des observations clairsemées.
+
+\subsubsection{Dérivées des processus gaussiens et normales de surface}
+
+Une propriété fondamentale des processus gaussiens est que les dérivées d'un GP sont également des processus gaussiens. Cette propriété est essentielle pour les GPIS, car les normales de surface sont dérivées du gradient de la fonction implicite.
+
+\paragraph{Processus gaussiens dérivés}
+
+En raison de la linéarité de l'opérateur de dérivation, la dérivée d'un processus gaussien prend la forme :
+
+\begin{equation}
+\text{GP}'(\mu(\mathbf{x}), k(\mathbf{x}, \mathbf{y})) = \text{GP}\left(\mu'(\mathbf{x}), k_{xy}(\mathbf{x}, \mathbf{y})\right)
+\end{equation}
+
+où :
+
+\begin{equation}
+k_{xy}(\mathbf{x}, \mathbf{y}) = \frac{\partial^2 k(\mathbf{x}, \mathbf{y})}{\partial \mathbf{x} \partial \mathbf{y}}
+\end{equation}
+
+Cela signifie que la covariance entre les dérivées peut être calculée en prenant la dérivée croisée du second ordre du noyau original.
+
+\paragraph{Calcul des normales sur les GPIS}
+
+Pour une surface implicite définie par $f(X) = 0$, la normale de surface en tout point est donnée par le gradient normalisé :
+
+\begin{equation}
+\mathbf{n}(\mathbf{x}) = \frac{\nabla f(\mathbf{x})}{||\nabla f(\mathbf{x})||}
+\end{equation}
+
+\subsubsection{Approximation d'un processus gaussien par convolution de bruit blanc}
+
+\paragraph{Le bruit blanc gaussien comme processus de Gauss}
+
+Le point de départ est le bruit blanc gaussien $W$, que l'on définit formellement comme un processus stochastique gaussien de moyenne nulle et dont la structure de covariance est entièrement caractérisée par un Dirac :
+
+\begin{equation}
+\mathbb{E}[W(\mathbf{s})] = 0, \qquad \mathbb{E}[W(\mathbf{s})\, W(\mathbf{u})] = \sigma^2\, \delta(\mathbf{s} - \mathbf{u})
+\end{equation}
+
+Le terme $\delta(\mathbf{s} - \mathbf{u})$ exprime que deux évaluations du processus en des points distincts sont \textbf{strictement décorrélées} : toute la variance est concentrée de façon infiniment localisée sur la diagonale. $W$ est donc un $\mathcal{GP}(0,\, \sigma^2 \delta)$.
+
+\paragraph{Construction d'un processus gaussien lisse par convolution}
+
+\paragraph{Définition du processus convolutionné}
+
+Par le principe de linéarité des processus gaussiens, toute transformation linéaire d'un processus gaussien est elle-même gaussienne. Dans notre cas, la convolution de $W$ avec le noyau $h(\mathbf{s}, \mathbf{p})$ produit un nouveau processus gaussien :
+
+\begin{equation}
+\psi_{\text{dense}}(\mathbf{p}) = \int h(\mathbf{s},\, \mathbf{p})\; W(\mathbf{s})\; d\mathbf{s}
+\end{equation}
+
+Puisque $W$ est de moyenne nulle et que l'intégrale est une opération linéaire, on a immédiatement $\mathbb{E}[\psi_{\text{dense}}(\mathbf{p})] = 0$. Il reste à caractériser la covariance de ce processus.
+
+\paragraph{Dérivation de la fonction de covariance $\kappa_{\text{dense}}$}
+
+La covariance entre deux points $\mathbf{p}$ et $\mathbf{p}'$ est :
+
+\begin{equation}
+\kappa_{\text{dense}}(\mathbf{p},\mathbf{p}') = \mathbb{E}\!\left[\psi_{\text{dense}}(\mathbf{p})\;\psi_{\text{dense}}(\mathbf{p}')\right]
+\end{equation}
+
+En substituant la définition de $\psi_{\text{dense}}$, on obtient une double intégrale :
+
+\begin{equation}
+\kappa_{\text{dense}}(\mathbf{p},\mathbf{p}') = \mathbb{E}\!\left[\left(\int h(\mathbf{s}, \mathbf{p})\, W(\mathbf{s})\, d\mathbf{s}\right) \left(\int h(\mathbf{u}, \mathbf{p}')\, W(\mathbf{u})\, d\mathbf{u}\right)\right]
+\end{equation}
+
+Par \textbf{linéarité de l'espérance}, on peut faire entrer l'opérateur $\mathbb{E}$ à l'intérieur des intégrales :
+
+\begin{equation}
+\kappa_{\text{dense}}(\mathbf{p},\mathbf{p}') = \iint h(\mathbf{s}, \mathbf{p})\; h(\mathbf{u}, \mathbf{p}')\; \mathbb{E}\!\left[W(\mathbf{s})\,W(\mathbf{u})\right] d\mathbf{s}\, d\mathbf{u}
+\end{equation}
+
+\paragraph{Simplification via la propriété du bruit blanc}
+
+On substitue la structure de covariance du bruit blanc, $\mathbb{E}[W(\mathbf{s})\,W(\mathbf{u})] = \sigma^2\,\delta(\mathbf{s}-\mathbf{u})$ :
+
+\begin{equation}
+\kappa_{\text{dense}}(\mathbf{p},\mathbf{p}') = \sigma^2 \iint h(\mathbf{s}, \mathbf{p})\; h(\mathbf{u}, \mathbf{p}')\; \delta(\mathbf{s} - \mathbf{u})\; d\mathbf{s}\, d\mathbf{u}
+\end{equation}
+
+La distribution de Dirac \textbf{annule} l'intégrale sur $\mathbf{u}$ en imposant $\mathbf{u} = \mathbf{s}$, ce qui réduit la double intégrale à une simple intégrale :
+
+\begin{equation}
+\boxed{\kappa_{\text{dense}}(\mathbf{p},\mathbf{p}') = \sigma^2 \int h(\mathbf{s}, \mathbf{p})\; h(\mathbf{s}, \mathbf{p}')\; d\mathbf{s}}
+\end{equation}
+
+Le processus $\psi_{\text{dense}}$ est donc un $\mathcal{GP}(0,\, \kappa_{\text{dense}})$, entièrement défini par le choix du noyau de convolution $h$.
+
+\paragraph{Dérivation analytique du noyau Squared Exponential}
+
+La relation $\kappa_{\text{dense}}(\mathbf{p},\mathbf{p}') = \sigma^2 \int h(\mathbf{s}, \mathbf{p})\, h(\mathbf{s}, \mathbf{p}')\, d\mathbf{s}$ est un résultat général : pour tout noyau de convolution $h$ pour lequel cette intégrale converge, on obtient une fonction de covariance valide. Le problème est alors de déterminer, pour un noyau de covariance cible $\kappa$ connu, quel noyau de convolution $h$ permet de le reproduire exactement.
+
+\paragraph{Hypothèse de stationnarité et réduction à une autocorrélation}
+
+Dans le cas général, $h(\mathbf{s}, \mathbf{p})$ peut dépendre à la fois de la variable d'intégration $\mathbf{s}$ et du point d'évaluation $\mathbf{p}$, ce qui permet de construire des processus \textbf{non-stationnaires}. Cependant, la grande majorité des noyaux utilisés en pratique sont \textbf{stationnaires} : la covariance entre deux points $\mathbf{p}$ et $\mathbf{p}'$ ne dépend que de leur différence $\mathbf{r} = \mathbf{p} - \mathbf{p}'$.
+
+Pour obtenir un tel processus stationnaire par convolution, il suffit de choisir un noyau $h$ qui ne dépend que de $\mathbf{s}$ seul, indépendamment de $\mathbf{p}$. Dans ce cas, en posant $\mathbf{r} = \mathbf{p} - \mathbf{p}'$, la formule générale de covariance se réduit à une \textbf{autocorrélation} de $h$ :
+
+\begin{equation}
+\kappa(\mathbf{r}) = \sigma^2 \int_{\mathbb{R}^3} h(\mathbf{u})\; h(\mathbf{u} - \mathbf{r})\; d\mathbf{u}
+\end{equation}
+
+Cette structure garantit que $\kappa$ est bien symétrique et définie positive, et que le processus résultant est stationnaire. La suite de la dérivation est présentée en \textbf{dimension $d = 3$}. Pour le noyau gaussien normalisé, le noyau de convolution s'écrit :
+
+\begin{equation}
+h(\mathbf{s}) = \frac{1}{(2\pi\ell^2)^{3/2}} \exp\!\left(-\frac{|\mathbf{s}|^2}{2\ell^2}\right)
+\end{equation}
+
+En notant $\mathbf{r} = \mathbf{p} - \mathbf{p}'$ le vecteur de décalage, on écrit :
+
+\begin{equation}
+\kappa(\mathbf{r}) = \frac{\sigma^2}{(2\pi\ell^2)^{3}} \int_{\mathbb{R}^3} \exp\!\left(-\frac{|\mathbf{u}|^2}{2\ell^2}\right) \exp\!\left(-\frac{|\mathbf{u} - \mathbf{r}|^2}{2\ell^2}\right) d\mathbf{u}
+\end{equation}
+
+\paragraph{Fusion et complétion du carré}
+
+On regroupe les deux exponentielles :
+
+\begin{equation}
+\kappa(\mathbf{r}) = \frac{\sigma^2}{(2\pi\ell^2)^{3}} \int_{\mathbb{R}^3} \exp\!\left(-\frac{1}{2\ell^2}\left(|\mathbf{u}|^2 + |\mathbf{u} - \mathbf{r}|^2\right)\right) d\mathbf{u}
+\end{equation}
+
+En développant $|\mathbf{u} - \mathbf{r}|^2 = |\mathbf{u}|^2 - 2\mathbf{u}\cdot\mathbf{r} + |\mathbf{r}|^2$, on obtient :
+
+\begin{equation}
+|\mathbf{u}|^2 + |\mathbf{u} - \mathbf{r}|^2 = 2|\mathbf{u}|^2 - 2\mathbf{u}\cdot\mathbf{r} + |\mathbf{r}|^2
+\end{equation}
+
+On complète le carré en $\mathbf{u}$ :
+
+\begin{equation}
+2|\mathbf{u}|^2 - 2\mathbf{u}\cdot\mathbf{r} = 2\left|\mathbf{u} - \frac{\mathbf{r}}{2}\right|^2 - \frac{|\mathbf{r}|^2}{2}
+\end{equation}
+
+d'où :
+
+\begin{equation}
+|\mathbf{u}|^2 + |\mathbf{u} - \mathbf{r}|^2 = 2\left|\mathbf{u} - \frac{\mathbf{r}}{2}\right|^2 + \frac{|\mathbf{r}|^2}{2}
+\end{equation}
+
+\paragraph{Séparation des termes et intégrale gaussienne}
+
+En réinjectant dans l'exponentielle, on \textbf{sépare} le terme dépendant de $\mathbf{r}$ du terme dépendant de $\mathbf{u}$ :
+
+\begin{equation}
+\kappa(\mathbf{r}) = \frac{\sigma^2}{(2\pi\ell^2)^{3}}\; \exp\!\left(-\frac{|\mathbf{r}|^2}{4\ell^2}\right) \int_{\mathbb{R}^3} \exp\!\left(-\frac{\left|\mathbf{u} - \frac{\mathbf{r}}{2}\right|^2}{\ell^2}\right) d\mathbf{u}
+\end{equation}
+
+Par le changement de variable $\mathbf{v} = \mathbf{u} - \frac{\mathbf{r}}{2}$, l'intégrale restante est une \textbf{intégrale gaussienne standard} en dimension 3 :
+
+\begin{equation}
+\int_{\mathbb{R}^3} \exp\!\left(-\frac{|\mathbf{v}|^2}{\ell^2}\right) d\mathbf{v} = (\pi \ell^2)^{3/2}
+\end{equation}
+
+\paragraph{Résultat final}
+
+En substituant ce résultat, les constantes se simplifient :
+
+\begin{equation}
+\kappa(\mathbf{r}) = \frac{\sigma^2\,(\pi\ell^2)^{3/2}}{(2\pi\ell^2)^{3}}\; \exp\!\left(-\frac{|\mathbf{r}|^2}{4\ell^2}\right) = \frac{\sigma^2}{(2\sqrt{\pi}\,\ell)^{3}}\; \exp\!\left(-\frac{|\mathbf{r}|^2}{4\ell^2}\right)
+\end{equation}
+
+On retrouve ainsi la forme canonique du \textbf{noyau squared exponential} normalisé en dimension 3 :
+
+\begin{equation}
+\boxed{\kappa(\mathbf{r}) = \frac{\sigma^2}{8\pi^{3/2}\ell^{3}}\; \exp\!\left(-\frac{|\mathbf{r}|^2}{4\ell^2}\right)}
+\end{equation}
+
+Ce résultat montre que le noyau de convolution retenu génère une fonction de covariance équivalente à un noyau squared exponential.
+
+Bien que nous ayons défini théoriquement le processus $\psi_{\text{dense}}$, l'évaluation via l'intégrale n'est pas utilisable en pratique ; il est toutefois possible de l'approximer par un bruit impulsionnel.
+
+\paragraph{Approximation par convolution de bruit impulsionnel}
+
+\paragraph{Motivation}
+
+Lewis (1986, 1989) a proposé d'approcher le bruit blanc continu $W(\mathbf{s})$ par un \textbf{processus d'impulsions aléatoires} (processus de Poisson) :
+
+\begin{equation}
+W(\mathbf{s}) \approx W_\lambda(\mathbf{s}) := \sum_i w_i\, \delta(\mathbf{s} - \mathbf{s}_i)
+\end{equation}
+
+Les positions $\{\mathbf{s}_i\}$ sont tirées d'un processus de Poisson de densité $\lambda$, et les poids $\{w_i\}$ sont des variables aléatoires indépendantes vérifiant :
+
+\begin{equation}
+\mathbb{E}[W_\lambda] = 0, \qquad \mathbb{E}[W_\lambda^2] = \frac{\sigma^2}{\lambda}
+\end{equation}
+
+\paragraph{Bruit de convolution parcimonieux}
+
+En substituant $W_\lambda$ dans la définition de $\psi_{\text{dense}}$, on obtient le \textbf{bruit de convolution parcimonieux} $\psi_\lambda$ :
+
+\begin{equation}
+\psi_{\text{dense}}(\mathbf{p}) \approx \psi_\lambda(\mathbf{p}) := \sum_i w_i\, h(\mathbf{s}_i, \mathbf{p})
+\end{equation}
+
+Cette expression est une somme finie pondérée d'évaluations du noyau de convolution $h$ aux positions des impulsions. Sa covariance vérifie \cite{xu25practical} :
+
+\begin{equation}
+\kappa_\lambda(\mathbf{p}, \mathbf{p}') = \lambda\, \mathbb{E}[W_\lambda^2]\int h(\mathbf{s}, \mathbf{p})\, h(\mathbf{s}, \mathbf{p}')\, d\mathbf{s} = \sigma^2 \int h(\mathbf{s}, \mathbf{p})\, h(\mathbf{s}, \mathbf{p}')\, d\mathbf{s} = \kappa_{\text{dense}}(\mathbf{p}, \mathbf{p}')
+\end{equation}
+
+où la simplification $\lambda \cdot \frac{\sigma^2}{\lambda} = \sigma^2$ montre que la covariance de $\psi_\lambda$ \textbf{coïncide exactement} avec celle de $\psi_{\text{dense}}$, quelle que soit la densité $\lambda$.
+
+\paragraph{Convergence vers le processus gaussien}
+
+Bien que $\psi_\lambda$ ne soit pas lui-même un processus gaussien pour $\lambda$ fini, il converge en distribution vers le GP cible lorsque $\lambda \to \infty$ :
+
+\begin{equation}
+\psi_\lambda(\mathbf{p}) \xrightarrow{d} \mathcal{GP}(0,\, \kappa_{\text{dense}}(\mathbf{p}, \mathbf{p}')) \quad \text{lorsque } \lambda \to \infty
+\end{equation}
+
+Ce résultat est une conséquence du \textbf{théorème central limite pour les mesures aléatoires} (Kallenberg 1997). Il garantit que $\psi_\lambda$ est une approximation cohérente du processus gaussien, dont la qualité s'améliore avec la densité d'impulsions $\lambda$.
+
+\paragraph{Interprétation et évaluation efficace}
+
+$\psi_\lambda$ peut s'interpréter comme une \textbf{approximation en espace des poids} d'un GP avec une infinité de fonctions de base $\phi_i(\mathbf{p}) = h(\mathbf{s}_i, \mathbf{p})$. Si $h$ est à support compact (par exemple un noyau gaussien tronqué), seul un nombre fini $\mathcal{O}(1)$ d'impulsions contribuent à l'évaluation en tout point $\mathbf{p}$, rendant le coût d'évaluation \textbf{constant} indépendamment du nombre total d'impulsions.
+
+En pratique, on partitionne l'espace en une grille dont la largeur de cellule est égale au rayon de support de $h$. Les impulsions dans chaque cellule sont générées à la volée via un générateur de nombres pseudo-aléatoires initialisé par l'indice de cellule, ce qui permet une évaluation du processus gaussien en tout point sans précomputation. Seules les $3^3 = 27$ cellules voisines d'un point d'évaluation contribuent, ce qui confère à la méthode une complexité spatiale et temporelle constante.
+
+\subsubsection{Une théorie unifiée du transport lumineux avec géométrie stochastique}
+
+Seyb et al.~\cite{seyb24from} ont utilisé les GPIS pour définir un modèle contrôlable capable de représenter tous les éléments d'une scène comme un continuum. Cela permet la représentation d'une scène à l'aide d'un modèle de transport lumineux unique.
+
+\paragraph{Algorithme}
+
+L'algorithme de tracé de rayon pour les GPIS s'appuie sur la fonction \texttt{nextHit} pour trouver les intersections de rayons. Cette fonction détermine la première distance $t$ pour laquelle le rayon $\mathbf{x} + t\mathbf{w}$ intersecte la surface, définie par $f(\mathbf{x}_t) = 0$. Pour trouver l'intersection, on génère une réalisation 1D du processus gaussien le long du rayon et on localise le changement de signe de cette fonction 1D. On échantillonne le processus gaussien en $n$ points le long du rayon, puis on interpole entre ces points pour obtenir une réalisation 1D continue adaptée à la recherche de racines. Une fois le point d'intersection obtenu, on calcule la normale par la méthode du gradient et, avec le point d'intersection et la normale, on peut évaluer le BSDF exactement comme dans un tracé de rayon standard.
+
+L'échantillonnement du processus gaussien le long du rayon a le désavantage de coûter en $O(n^3)$ pour chaque point échantillonné, causé par la nécessité d'inverser une matrice pour chaque évaluation. Toutefois, l'approximation par convolution parcimonieuse de bruit blanc présentée par \textcite{xu25practical} permet une évaluation en $O(1)$ pour chaque point.
