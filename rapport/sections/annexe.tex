@@ -1,0 +1,130 @@
+\section{Dérivation de la covariance par convolution de bruit blanc}
+\label{ann:derivation-se}
+
+\paragraph{Définition du processus convolutionné}
+
+Par le principe de linéarité des processus gaussiens, toute transformation linéaire d'un processus gaussien est elle-même gaussienne. Dans notre cas, la convolution de $W$ avec le noyau $h(\mathbf{s}, \mathbf{x})$ produit un nouveau processus gaussien :
+
+\begin{equation}
+\psi_{\text{dense}}(\mathbf{x}) = \int h(\mathbf{s},\, \mathbf{x})\; W(\mathbf{s})\; d\mathbf{s}
+\end{equation}
+
+Puisque $W$ est de moyenne nulle et que l'intégrale est une opération linéaire, on a immédiatement $\mathbb{E}[\psi_{\text{dense}}(\mathbf{x})] = 0$. Il reste à caractériser la covariance de ce processus.
+
+\paragraph{Dérivation de la fonction de covariance $k_{\text{dense}}$}
+
+La covariance entre deux points $\mathbf{x}$ et $\mathbf{x}'$ est :
+
+\begin{equation}
+k_{\text{dense}}(\mathbf{x},\mathbf{x}') = \mathbb{E}\!\left[\psi_{\text{dense}}(\mathbf{x})\;\psi_{\text{dense}}(\mathbf{x}')\right]
+\end{equation}
+
+En substituant la définition de $\psi_{\text{dense}}$, on obtient une double intégrale :
+
+\begin{equation}
+k_{\text{dense}}(\mathbf{x},\mathbf{x}') = \mathbb{E}\!\left[\left(\int h(\mathbf{s}, \mathbf{x})\, W(\mathbf{s})\, d\mathbf{s}\right) \left(\int h(\mathbf{u}, \mathbf{x}')\, W(\mathbf{u})\, d\mathbf{u}\right)\right]
+\end{equation}
+
+Par linéarité de l'espérance, on peut faire entrer l'opérateur $\mathbb{E}$ à l'intérieur des intégrales :
+
+\begin{equation}
+k_{\text{dense}}(\mathbf{x},\mathbf{x}') = \iint h(\mathbf{s}, \mathbf{x})\; h(\mathbf{u}, \mathbf{x}')\; \mathbb{E}\!\left[W(\mathbf{s})\,W(\mathbf{u})\right] d\mathbf{s}\, d\mathbf{u}
+\end{equation}
+
+\paragraph{Simplification via la propriété du bruit blanc}
+
+On substitue la structure de covariance du bruit blanc, $\mathbb{E}[W(\mathbf{s})\,W(\mathbf{u})] = \sigma^2\,\delta(\mathbf{s}-\mathbf{u})$ :
+
+\begin{equation}
+k_{\text{dense}}(\mathbf{x},\mathbf{x}') = \sigma^2 \iint h(\mathbf{s}, \mathbf{x})\; h(\mathbf{u}, \mathbf{x}')\; \delta(\mathbf{s} - \mathbf{u})\; d\mathbf{s}\, d\mathbf{u}
+\end{equation}
+
+La distribution de Dirac annule l'intégrale sur $\mathbf{u}$ en imposant $\mathbf{u} = \mathbf{s}$, ce qui réduit la double intégrale à une simple intégrale :
+
+\begin{equation}
+\boxed{k_{\text{dense}}(\mathbf{x},\mathbf{x}') = \sigma^2 \int h(\mathbf{s}, \mathbf{x})\; h(\mathbf{s}, \mathbf{x}')\; d\mathbf{s}}
+\end{equation}
+
+Le processus $\psi_{\text{dense}}$ est donc un $\text{GP}(0,\, k_{\text{dense}})$, entièrement défini par le choix du noyau de convolution $h$.
+
+\paragraph{Dérivation analytique du noyau RBF}
+
+La relation $k_{\text{dense}}(\mathbf{x},\mathbf{x}') = \sigma^2 \int h(\mathbf{s}, \mathbf{x})\, h(\mathbf{s}, \mathbf{x}')\, d\mathbf{s}$ est un résultat général : pour tout noyau de convolution $h$ pour lequel cette intégrale converge, on obtient une fonction de covariance valide. Le problème est alors de déterminer, pour un noyau de covariance cible $k$ connu, quel noyau de convolution $h$ permet de le reproduire exactement.
+
+\paragraph{Hypothèse de stationnarité et réduction à une autocorrélation}
+
+Dans le cas général, $h(\mathbf{s}, \mathbf{x})$ peut dépendre à la fois de la variable d'intégration $\mathbf{s}$ et du point d'évaluation $\mathbf{x}$, ce qui permet de construire des processus non-stationnaires. Cependant, la grande majorité des noyaux utilisés en pratique sont stationnaires : la covariance entre deux points $\mathbf{x}$ et $\mathbf{x}'$ ne dépend que de leur différence $\mathbf{r} = \mathbf{x} - \mathbf{x}'$.
+
+Pour obtenir un tel processus stationnaire par convolution, il suffit de choisir un noyau $h$ qui ne dépend que de $\mathbf{s}$ seul, indépendamment de $\mathbf{x}$. Dans ce cas, en posant $\mathbf{r} = \mathbf{x} - \mathbf{x}'$, la formule générale de covariance se réduit à une autocorrélation de $h$ :
+
+\begin{equation}
+k(\mathbf{r}) = \sigma^2 \int_{\mathbb{R}^3} h(\mathbf{u})\; h(\mathbf{u} - \mathbf{r})\; d\mathbf{u}
+\end{equation}
+
+Cette structure garantit que $k$ est bien symétrique et définie positive, et que le processus résultant est stationnaire. La suite de la dérivation est présentée en dimension $d = 3$. Pour le noyau gaussien normalisé, le noyau de convolution s'écrit :
+
+\begin{equation}
+h(\mathbf{s}) = \frac{1}{(2\pi\ell^2)^{3/2}} \exp\!\left(-\frac{|\mathbf{s}|^2}{2\ell^2}\right)
+\end{equation}
+
+En notant $\mathbf{r} = \mathbf{x} - \mathbf{x}'$ le vecteur de décalage, on écrit :
+
+\begin{equation}
+k(\mathbf{r}) = \frac{\sigma^2}{(2\pi\ell^2)^{3}} \int_{\mathbb{R}^3} \exp\!\left(-\frac{|\mathbf{u}|^2}{2\ell^2}\right) \exp\!\left(-\frac{|\mathbf{u} - \mathbf{r}|^2}{2\ell^2}\right) d\mathbf{u}
+\end{equation}
+
+\paragraph{Fusion et complétion du carré}
+
+On regroupe les deux exponentielles :
+
+\begin{equation}
+k(\mathbf{r}) = \frac{\sigma^2}{(2\pi\ell^2)^{3}} \int_{\mathbb{R}^3} \exp\!\left(-\frac{1}{2\ell^2}\left(|\mathbf{u}|^2 + |\mathbf{u} - \mathbf{r}|^2\right)\right) d\mathbf{u}
+\end{equation}
+
+En développant $|\mathbf{u} - \mathbf{r}|^2 = |\mathbf{u}|^2 - 2\mathbf{u}\cdot\mathbf{r} + |\mathbf{r}|^2$, on obtient :
+
+\begin{equation}
+|\mathbf{u}|^2 + |\mathbf{u} - \mathbf{r}|^2 = 2|\mathbf{u}|^2 - 2\mathbf{u}\cdot\mathbf{r} + |\mathbf{r}|^2
+\end{equation}
+
+On complète le carré en $\mathbf{u}$ :
+
+\begin{equation}
+2|\mathbf{u}|^2 - 2\mathbf{u}\cdot\mathbf{r} = 2\left|\mathbf{u} - \frac{\mathbf{r}}{2}\right|^2 - \frac{|\mathbf{r}|^2}{2}
+\end{equation}
+
+d'où :
+
+\begin{equation}
+|\mathbf{u}|^2 + |\mathbf{u} - \mathbf{r}|^2 = 2\left|\mathbf{u} - \frac{\mathbf{r}}{2}\right|^2 + \frac{|\mathbf{r}|^2}{2}
+\end{equation}
+
+\paragraph{Séparation des termes et intégrale gaussienne}
+
+En réinjectant dans l'exponentielle, on sépare le terme dépendant de $\mathbf{r}$ du terme dépendant de $\mathbf{u}$ :
+
+\begin{equation}
+k(\mathbf{r}) = \frac{\sigma^2}{(2\pi\ell^2)^{3}}\; \exp\!\left(-\frac{|\mathbf{r}|^2}{4\ell^2}\right) \int_{\mathbb{R}^3} \exp\!\left(-\frac{\left|\mathbf{u} - \frac{\mathbf{r}}{2}\right|^2}{\ell^2}\right) d\mathbf{u}
+\end{equation}
+
+Par le changement de variable $\mathbf{v} = \mathbf{u} - \frac{\mathbf{r}}{2}$, l'intégrale restante est une intégrale gaussienne standard en dimension 3 :
+
+\begin{equation}
+\int_{\mathbb{R}^3} \exp\!\left(-\frac{|\mathbf{v}|^2}{\ell^2}\right) d\mathbf{v} = (\pi \ell^2)^{3/2}
+\end{equation}
+
+\paragraph{Résultat final}
+
+En substituant ce résultat, les constantes se simplifient :
+
+\begin{equation}
+k(\mathbf{r}) = \frac{\sigma^2\,(\pi\ell^2)^{3/2}}{(2\pi\ell^2)^{3}}\; \exp\!\left(-\frac{|\mathbf{r}|^2}{4\ell^2}\right) = \frac{\sigma^2}{(2\sqrt{\pi}\,\ell)^{3}}\; \exp\!\left(-\frac{|\mathbf{r}|^2}{4\ell^2}\right)
+\end{equation}
+
+On retrouve ainsi la forme canonique du noyau RBF normalisé en dimension 3 :
+
+\begin{equation}
+\boxed{k(\mathbf{r}) = \frac{\sigma^2}{8\pi^{3/2}\ell^{3}}\; \exp\!\left(-\frac{|\mathbf{r}|^2}{4\ell^2}\right)}
+\end{equation}
+
+Ce résultat montre que le noyau de convolution retenu génère une fonction de covariance équivalente à un noyau RBF.

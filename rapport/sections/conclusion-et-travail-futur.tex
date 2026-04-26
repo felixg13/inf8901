@@ -1,1 +1,15 @@
-\section{Conclusion et Travail Futur}
+\section{Conclusion et travail futur}
+
+\subsection{Travail futur}
+
+Il serait intéressant d'explorer une approche alternative au rendu des cheveux, soit considérer la chevelure entière comme un volume à représenter. Pour ce faire, il faudrait trouver une façon de représenter la moyenne sous-jacente au processus gaussien ; on pourrait le faire en utilisant le format OpenVDB comme le font \textcite{seyb24from} pour leurs structures. Cette approche ferait disparaître le besoin de traverser la hiérarchie de volumes englobants de courbes de cheveux et pourrait potentiellement permettre le rendu de modèles avec beaucoup plus de cheveux, comme une fourrure par exemple.
+
+Il est aussi important de permettre la démocratisation de cette technique de rendu en développant des outils pour artistes afin de leur permettre de définir un modèle avec un processus gaussien. Présentement, c'est souvent l'opération inverse qui est réalisée, soit prendre un modèle existant et le convertir en modèle GPIS en encodant une moyenne et une variance. Des outils d'exportation vers un format standard d'encodage du processus gaussien, comme le format OpenVDB avec moyenne et variance proposé par \textcite{seyb24from}, seraient une étape importante à franchir pour l'adoption de cette technique.
+
+Comme mentionné plus tôt, il serait aussi intéressant d'ajouter le support de modèles GPIS dans Mitsuba 3, ce qui permettrait aux chercheurs utilisant cet outil de travailler avec cette nouvelle technique.
+
+\subsection{Conclusion}
+
+En conclusion, l'objectif de ce projet était d'appliquer la technique GPIS au rendu de la chevelure. Pour y arriver, nous avons dû définir une représentation gaussienne des cheveux par l'approximation avec les fonctions de distance signée des courbes et réaliser un programme de tracé de rayon intégrant cette nouvelle technique. Les résultats obtenus sont satisfaisants sans plus. Le temps de rendu demeure la plus grande limitation.
+
+Ce projet a été très exigeant au niveau mathématique et théorique, mais aussi dans l'apprentissage de l'état de l'art sur le tracé de rayon. Dans un futur projet, il serait nécessaire d'avoir une meilleure compréhension préalable du sujet pour s'assurer que la complexité est abordable dans l'espace de 4 mois en ayant les connaissances préalables. D'autre part, ce projet m'a servi d'opportunité unique pour mieux comprendre le fonctionnement de la recherche dans le rendu graphique et m'a permis de faire un survol des nombreuses sphères de recherche actives. Je suis ainsi toujours motivé à continuer la recherche dans le monde de l'infographie.
